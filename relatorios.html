@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios — KS Stock</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><rect width='24' height='24' rx='6' fill='%234f46e5'/><text x='50%25' y='68%25' font-size='14' font-weight='bold' text-anchor='middle' fill='white'>KS</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <aside id="app-sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-badge">KS</div>
+          <div class="brand-text">
+            <span class="brand-name">KS Stock</span>
+            <span class="brand-tagline">Controle Inteligente</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-company-card">
+        <div class="company-avatar company-avatar-display">KS</div>
+        <div class="company-info">
+          <div class="company-name company-name-display">Minha Empresa</div>
+          <div class="company-plan">Plano Pro</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Principal</div>
+        <a href="dashboard.html" class="nav-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+          Dashboard
+        </a>
+        <a href="produtos.html" class="nav-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+          Produtos
+        </a>
+        <a href="estoque.html" class="nav-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+          Estoque
+        </a>
+        <a href="vendas.html" class="nav-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+          Vendas
+        </a>
+
+        <div class="nav-section-title">Gestão</div>
+        <a href="clientes.html" class="nav-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          Clientes
+        </a>
+        <a href="fornecedores.html" class="nav-item">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+          Fornecedores
+        </a>
+        <a href="relatorios.html" class="nav-item active">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          Relatórios
+        </a>
+
+        <div class="nav-section-title admin-only">Sistema</div>
+        <a href="configuracoes.html" class="nav-item admin-only">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          Configurações
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-bar">
+          <div class="user-info">
+            <div class="user-avatar user-avatar-display">U</div>
+            <div class="user-details">
+              <span class="user-name user-name-display">Carregando...</span>
+              <span class="user-role user-role-display">Administrador</span>
+            </div>
+          </div>
+          <button type="button" class="btn-logout btn-logout-action" title="Sair da conta">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="header-left">
+          <button type="button" id="btn-menu-toggle" class="btn-menu-toggle" aria-label="Abrir menu">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          </button>
+          <div class="page-title-wrap">
+            <h1 class="page-title">Relatórios</h1>
+            <span class="page-subtitle">Indicadores financeiros, giro de estoque e lucratividade</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Imprimir / Salvar PDF
+          </button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        <!-- MÉTRICAS DE VENDAS -->
+        <h3 style="font-size: 0.95rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 1rem;">
+          Desempenho Comercial & Lucro
+        </h3>
+        <div class="kpi-grid" style="margin-bottom: 2rem;">
+          <div class="card kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Faturamento Total</span>
+              <div class="kpi-icon-wrap icon-primary">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="rep-total-revenue">R$ 0,00</div>
+            <div class="kpi-subtext">Total bruto vendido</div>
+          </div>
+
+          <div class="card kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Qtd. de Vendas</span>
+              <div class="kpi-icon-wrap icon-primary">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="rep-sales-count">0</div>
+            <div class="kpi-subtext">Transações concluídas</div>
+          </div>
+
+          <div class="card kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Ticket Médio</span>
+              <div class="kpi-icon-wrap icon-primary">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="rep-avg-ticket">R$ 0,00</div>
+            <div class="kpi-subtext">Média por pedido</div>
+          </div>
+
+          <div class="card kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Lucro Estimado</span>
+              <div class="kpi-icon-wrap icon-success">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="rep-estimated-profit" style="color: var(--color-success);">R$ 0,00</div>
+            <div class="kpi-subtext">Vendas menos custo mercadoria</div>
+          </div>
+        </div>
+
+        <!-- AVALIAÇÃO DE ESTOQUE -->
+        <h3 style="font-size: 0.95rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 1rem;">
+          Valor Patrimonial do Estoque
+        </h3>
+        <div class="kpi-grid" style="margin-bottom: 2rem;">
+          <div class="card kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Valor a Custo</span>
+              <div class="kpi-icon-wrap icon-primary">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="rep-stock-cost-valuation">R$ 0,00</div>
+            <div class="kpi-subtext">Investimento total em estoque</div>
+          </div>
+
+          <div class="card kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Potencial de Venda</span>
+              <div class="kpi-icon-wrap icon-success">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="rep-stock-sale-valuation">R$ 0,00</div>
+            <div class="kpi-subtext">Faturamento potencial futuro</div>
+          </div>
+
+          <div class="card kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Margem Potencial Futura</span>
+              <div class="kpi-icon-wrap icon-success">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="rep-potential-profit" style="color: var(--color-success);">R$ 0,00</div>
+            <div class="kpi-subtext">Lucro projetado ao zerar estoque</div>
+          </div>
+        </div>
+
+        <!-- GRADES DE PRODUTOS MAIS VENDIDOS E ESTOQUE BAIXO -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem;">
+          <!-- Top Mais Vendidos -->
+          <div class="table-card">
+            <div class="table-header-bar">
+              <div>
+                <h2 style="font-size: 1rem; font-weight: 700;">Produtos Mais Vendidos</h2>
+                <span style="font-size: 0.8rem; color: var(--color-text-muted);">Curva de vendas por volume</span>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Produto</th>
+                    <th>Volume</th>
+                    <th>Faturamento</th>
+                  </tr>
+                </thead>
+                <tbody id="rep-top-products-tbody">
+                  <tr><td colspan="4" class="text-center py-4" style="color: #94a3b8;">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Alerta de Reposição -->
+          <div class="table-card">
+            <div class="table-header-bar">
+              <div>
+                <h2 style="font-size: 1rem; font-weight: 700;">Alerta de Reposição</h2>
+                <span style="font-size: 0.8rem; color: var(--color-text-muted);">Itens próximos ou abaixo do mínimo</span>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Produto</th>
+                    <th>Status</th>
+                    <th>Estoque Mínimo</th>
+                    <th>Custo Unit.</th>
+                  </tr>
+                </thead>
+                <tbody id="rep-low-stock-tbody">
+                  <tr><td colspan="4" class="text-center py-4" style="color: #94a3b8;">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/relatorios.js"></script>
+</body>
+</html>

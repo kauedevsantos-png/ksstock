@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar Senha — KS Stock</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><rect width='24' height='24' rx='6' fill='%234f46e5'/><text x='50%25' y='68%25' font-size='14' font-weight='bold' text-anchor='middle' fill='white'>KS</text></svg>">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-box">
+      <div class="auth-header">
+        <div class="auth-brand">
+          <div class="auth-brand-logo">KS</div>
+          <span class="auth-brand-name">KS Stock</span>
+        </div>
+        <h1 class="auth-title">Recuperação de Senha</h1>
+        <p class="auth-subtitle">Informe seu e-mail cadastrado para receber as instruções.</p>
+      </div>
+
+      <form id="form-reset">
+        <div class="form-group">
+          <label class="form-label" for="reset-email">E-mail Cadastrado</label>
+          <input type="email" id="reset-email" class="form-control" placeholder="seu@email.com" required autocomplete="email">
+        </div>
+
+        <button type="submit" id="btn-submit-reset" class="btn btn-primary btn-block" style="padding: 0.75rem; margin-top: 1rem;">
+          Enviar Link de Recuperação
+        </button>
+      </form>
+
+      <div class="auth-footer-links">
+        Lembrou da senha? <a href="login.html">Voltar para o login</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CDN Supabase JS Client v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('form-reset');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('reset-email').value;
+        const btn = document.getElementById('btn-submit-reset');
+
+        btn.disabled = true;
+        btn.textContent = 'Enviando...';
+
+        await Auth.resetPassword(email);
+
+        btn.disabled = false;
+        btn.textContent = 'Enviar Link de Recuperação';
+      });
+    });
+  </script>
+</body>
+</html>
