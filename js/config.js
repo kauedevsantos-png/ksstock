@@ -10,8 +10,8 @@
 const CONFIG = {
   // SUPABASE CREDENCIAIS
   // Substitua pelos dados do seu projeto Supabase:
-  SUPABASE_URL: window.KS_ENV_SUPABASE_URL || 'sb_publishable_NlYyBXeK3tWhfPYfjRkVJw_u1BErnKM',
-  SUPABASE_ANON_KEY: window.KS_ENV_SUPABASE_ANON_KEY || 'https://ftwfzrsfzwkmyrwhbzyr.supabase.co/rest/v1/',
+  SUPABASE_URL: window.KS_ENV_SUPABASE_URL || 'https://ftwfzrsfzwkmyrwhbzyr.supabase.co/rest/v1/',
+  SUPABASE_ANON_KEY: window.KS_ENV_SUPABASE_ANON_KEY || 'sb_publishable_NlYyBXeK3tWhfPYfjRkVJw_u1BErnKM',
 
   APP_NAME: 'KS Stock',
   APP_VERSION: '1.0.0',
