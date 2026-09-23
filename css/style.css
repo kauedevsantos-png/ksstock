@@ -6,14 +6,14 @@
 
 :root {
   /* Cores Principais */
-  --color-primary: #4f46e5;         /* Indigo KS */
+  --color-primary: #4f46e5;
   --color-primary-hover: #4338ca;
   --color-primary-light: #eef2ff;
   --color-primary-glow: rgba(79, 70, 229, 0.15);
 
-  --color-bg-body: #f8fafc;        /* Cinza suave para fundo */
-  --color-bg-surface: #ffffff;     /* Cards e superfícies */
-  --color-bg-sidebar: #0f172a;     /* Slate escuro profissional */
+  --color-bg-body: #f8fafc;
+  --color-bg-surface: #ffffff;
+  --color-bg-sidebar: #0f172a;
   --color-bg-sidebar-hover: #1e293b;
   --color-bg-sidebar-active: #334155;
 
@@ -69,7 +69,8 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--color-bg-body);
@@ -83,7 +84,10 @@ a {
   text-decoration: none;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font-family: inherit;
   font-size: inherit;
   color: inherit;
@@ -92,6 +96,7 @@ button, input, select, textarea {
 /* ==============================================================================
    LAYOUT GERAL (APP SHELL)
    ============================================================================== */
+
 .app-container {
   display: flex;
   min-height: 100vh;
@@ -408,6 +413,7 @@ button, input, select, textarea {
 /* ==============================================================================
    COMPONENTES: BOTÕES
    ============================================================================== */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -489,6 +495,7 @@ button, input, select, textarea {
 /* ==============================================================================
    COMPONENTES: CARDS E MÉTRICAS (KPIS)
    ============================================================================== */
+
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -578,6 +585,7 @@ button, input, select, textarea {
 /* ==============================================================================
    COMPONENTES: TABELAS E LISTAS
    ============================================================================== */
+
 .table-card {
   background: var(--color-bg-surface);
   border: 1px solid var(--border-color);
@@ -685,32 +693,45 @@ button, input, select, textarea {
   color: #065f46;
   border: 1px solid var(--color-success-border);
 }
-.badge-success .badge-dot { background-color: var(--color-success); }
+
+.badge-success .badge-dot {
+  background-color: var(--color-success);
+}
 
 .badge-warning {
   background-color: var(--color-warning-bg);
   color: #92400e;
   border: 1px solid var(--color-warning-border);
 }
-.badge-warning .badge-dot { background-color: var(--color-warning); }
+
+.badge-warning .badge-dot {
+  background-color: var(--color-warning);
+}
 
 .badge-danger {
   background-color: var(--color-danger-bg);
   color: #991b1b;
   border: 1px solid var(--color-danger-border);
 }
-.badge-danger .badge-dot { background-color: var(--color-danger); }
+
+.badge-danger .badge-dot {
+  background-color: var(--color-danger);
+}
 
 .badge-neutral {
   background-color: #f1f5f9;
   color: #475569;
   border: 1px solid #e2e8f0;
 }
-.badge-neutral .badge-dot { background-color: #94a3b8; }
+
+.badge-neutral .badge-dot {
+  background-color: #94a3b8;
+}
 
 /* ==============================================================================
    COMPONENTES: FORMULÁRIOS
    ============================================================================== */
+
 .form-group {
   margin-bottom: 1.25rem;
   display: flex;
@@ -785,6 +806,7 @@ textarea.form-control {
 /* ==============================================================================
    COMPONENTES: MODAIS
    ============================================================================== */
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -798,6 +820,9 @@ textarea.form-control {
   opacity: 0;
   visibility: hidden;
   transition: opacity var(--transition-normal), visibility var(--transition-normal);
+
+  /* Permite rolagem do próprio backdrop quando a tela for muito pequena */
+  overflow-y: auto;
 }
 
 .modal-backdrop.active {
@@ -813,10 +838,19 @@ textarea.form-control {
   box-shadow: var(--shadow-xl);
   transform: scale(0.96) translateY(10px);
   transition: transform var(--transition-normal);
+
+  /* Altura controlada para o conteúdo poder rolar */
   max-height: 90vh;
+  height: auto;
+
   display: flex;
   flex-direction: column;
+
+  /* Impede o conteúdo interno de estourar o modal */
   overflow: hidden;
+
+  /* Necessário para flex + scroll funcionar corretamente */
+  min-height: 0;
 }
 
 .modal-backdrop.active .modal-dialog {
@@ -833,6 +867,9 @@ textarea.form-control {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  /* Cabeçalho nunca encolhe */
+  flex: 0 0 auto;
 }
 
 .modal-title {
@@ -859,13 +896,49 @@ textarea.form-control {
   color: var(--color-text-main);
 }
 
+/*
+   IMPORTANTE:
+   O formulário ocupa o espaço entre o cabeçalho e o final do modal.
+   Isso permite que apenas .modal-body tenha scroll.
+*/
+#form-product {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/*
+   Corpo do modal:
+   - ocupa o espaço disponível
+   - rola verticalmente
+   - não empurra o footer para fora
+*/
 .modal-body {
   padding: 1.75rem;
   overflow-y: auto;
+  overflow-x: hidden;
   flex: 1 1 auto;
   min-height: 0;
+
+  /* Scroll mais suave */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
+/*
+   Em particular no formulário de produtos,
+   garantir que o conteúdo possa realmente encolher.
+*/
+#form-product .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Rodapé permanece sempre visível */
 .modal-footer {
   padding: 1.25rem 1.75rem;
   border-top: 1px solid var(--border-color);
@@ -874,7 +947,11 @@ textarea.form-control {
   justify-content: flex-end;
   gap: 0.75rem;
   background: #fafbfc;
+
+  /* Nunca deixa o footer ser comprimido */
+  flex: 0 0 auto;
   flex-shrink: 0;
+
   position: relative;
   z-index: 2;
 }
@@ -882,6 +959,7 @@ textarea.form-control {
 /* ==============================================================================
    COMPONENTES: TOAST NOTIFICATIONS
    ============================================================================== */
+
 #toast-container {
   position: fixed;
   top: 1.5rem;
@@ -914,6 +992,7 @@ textarea.form-control {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -944,14 +1023,26 @@ textarea.form-control {
   margin-top: 0.2rem;
 }
 
-.toast.success .toast-icon { color: var(--color-success); }
-.toast.error .toast-icon { color: var(--color-danger); }
-.toast.warning .toast-icon { color: var(--color-warning); }
-.toast.info .toast-icon { color: var(--color-info); }
+.toast.success .toast-icon {
+  color: var(--color-success);
+}
+
+.toast.error .toast-icon {
+  color: var(--color-danger);
+}
+
+.toast.warning .toast-icon {
+  color: var(--color-warning);
+}
+
+.toast.info .toast-icon {
+  color: var(--color-info);
+}
 
 /* ==============================================================================
    COMPONENTES: ESTADOS VAZIOS (EMPTY STATES) E SKELETON
    ============================================================================== */
+
 .empty-state {
   padding: 3.5rem 2rem;
   text-align: center;
@@ -991,15 +1082,25 @@ textarea.form-control {
 
 /* SKELETON LOADERS */
 .skeleton {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background: linear-gradient(
+    90deg,
+    #f1f5f9 25%,
+    #e2e8f0 50%,
+    #f1f5f9 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-sm);
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .skeleton-text {
@@ -1021,6 +1122,7 @@ textarea.form-control {
 /* ==============================================================================
    TELAS PÚBLICAS DE AUTENTICAÇÃO (LOGIN / CADASTRO)
    ============================================================================== */
+
 .auth-wrapper {
   min-height: 100vh;
   display: flex;
@@ -1039,7 +1141,11 @@ textarea.form-control {
   left: -10%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(79, 70, 229, 0.25) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(79, 70, 229, 0.25) 0%,
+    transparent 70%
+  );
   border-radius: 50%;
   pointer-events: none;
 }
@@ -1133,6 +1239,7 @@ textarea.form-control {
 /* ==============================================================================
    TELA: RELATÓRIOS E GRÁFICOS
    ============================================================================== */
+
 .chart-container {
   position: relative;
   height: 320px;
@@ -1175,6 +1282,7 @@ textarea.form-control {
 /* ==============================================================================
    RESPONSIVIDADE (MOBILE, TABLET, DESKTOP)
    ============================================================================== */
+
 @media (max-width: 992px) {
   .sidebar {
     transform: translateX(-100%);
@@ -1236,15 +1344,67 @@ textarea.form-control {
     padding: 1.75rem 1.25rem;
   }
 
+  /*
+     No celular, o modal pode ocupar praticamente
+     toda a altura disponível.
+  */
+  .modal-backdrop {
+    padding: 0.75rem;
+    align-items: center;
+  }
+
   .modal-dialog {
     max-height: 95vh;
+    height: 95vh;
+    border-radius: var(--radius-lg);
+  }
+
+  .modal-dialog-lg {
+    max-width: 100%;
+  }
+
+  .modal-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .modal-body {
+    padding: 1.25rem;
   }
 
   .modal-footer {
     padding: 1rem 1.25rem;
+    gap: 0.6rem;
   }
 
   .modal-footer .btn {
     flex: 1;
+    min-height: 44px;
+  }
+}
+
+/*
+   TELAS MUITO PEQUENAS
+   Mantém o formulário utilizável mesmo em aparelhos
+   com pouca altura disponível.
+*/
+@media (max-width: 640px) and (max-height: 700px) {
+  .modal-dialog {
+    height: 96vh;
+    max-height: 96vh;
+  }
+
+  .modal-header {
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+  }
+
+  .modal-body {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .modal-footer {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
   }
 }
