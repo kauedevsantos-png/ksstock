@@ -1,25 +1,29 @@
 /**
  * KS STOCK — GESTÃO DE AUTENTICAÇÃO E SESSÃO MULTIEMPRESA
- * Integração com Supabase Auth + RPC register_company_and_admin
+ * Supabase Auth + criação automática de empresa + trial de 7 dias
  */
 
 const Auth = {
-  // Guarda de rota para páginas protegidas
+
   async requireAuth() {
     UI.checkSupabaseBanner();
 
     if (!CONFIG.isSupabaseConfigured()) {
-      console.warn('Supabase não configurado. Exibindo banner informativo.');
+      console.warn('Supabase não configurado.');
       return null;
     }
 
     const client = getSupabase();
+
     if (!client) {
       window.location.href = 'login.html';
       return null;
     }
 
-    const { data: { session }, error } = await client.auth.getSession();
+    const {
+      data: { session },
+      error
+    } = await client.auth.getSession();
 
     if (error || !session) {
       this.clearSessionCache();
@@ -27,40 +31,46 @@ const Auth = {
       return null;
     }
 
-    // Carrega ou valida o perfil
     const profile = await this.loadUserProfile(session.user.id);
 
     if (!profile) {
-      UI.showToast('error', 'Atenção', 'Perfil de empresa não encontrado.');
-      setTimeout(() => {
-        window.location.href = 'login.html';
-      }, 1500);
+      UI.showToast(
+        'error',
+        'Perfil não encontrado',
+        'Sua conta existe, mas o perfil da empresa não foi encontrado.'
+      );
 
       return null;
     }
 
     this.updateUserUI(profile);
 
-    // Verifica a assinatura antes de liberar qualquer página protegida.
-    // O Subscription.init() também bloqueia trials expirados, suspensos
-    // e cancelados.
-    const subscriptionAllowed = await Subscription.init();
+    if (typeof Subscription !== 'undefined') {
+      const subscriptionAllowed = await Subscription.init();
 
-    if (!subscriptionAllowed) {
-      return null;
+      if (!subscriptionAllowed) {
+        return null;
+      }
     }
 
-    return { session, profile };
+    return {
+      session,
+      profile
+    };
   },
 
-  // Redireciona usuário já logado para o dashboard
   async redirectIfAuthenticated() {
     UI.checkSupabaseBanner();
 
-    if (!CONFIG.isSupabaseConfigured()) return;
+    if (!CONFIG.isSupabaseConfigured()) {
+      return;
+    }
 
     const client = getSupabase();
-    if (!client) return;
+
+    if (!client) {
+      return;
+    }
 
     const {
       data: { session }
@@ -71,27 +81,39 @@ const Auth = {
     }
   },
 
-  // Carrega os dados do perfil e da empresa do usuário
   async loadUserProfile(userId) {
+
     const cached = localStorage.getItem('ks_user_profile');
 
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
 
-        if (parsed.id === userId) {
+        if (
+          parsed &&
+          parsed.id === userId &&
+          parsed.company_id
+        ) {
           return parsed;
         }
+
       } catch (e) {
         localStorage.removeItem('ks_user_profile');
       }
     }
 
     const client = getSupabase();
-    if (!client) return null;
+
+    if (!client) {
+      return null;
+    }
 
     try {
-      const { data, error } = await client
+
+      const {
+        data,
+        error
+      } = await client
         .from('profiles')
         .select(`
           id,
@@ -107,25 +129,35 @@ const Auth = {
           )
         `)
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error || !data) {
-        console.error('Erro ao buscar perfil:', error);
+      if (error) {
+        console.error(
+          'Erro ao buscar perfil:',
+          error
+        );
+
+        return null;
+      }
+
+      if (!data) {
         return null;
       }
 
       const userProfile = {
         id: data.id,
-        name: data.name,
-        email: data.email,
-        role: data.role,
+        name: data.name || 'Usuário',
+        email: data.email || '',
+        role: data.role || 'employee',
         company_id: data.company_id,
-        company_name: data.companies
-          ? data.companies.name
-          : 'Minha Empresa',
-        company_plan: data.companies
-          ? data.companies.plan
-          : 'Pro'
+
+        company_name:
+          data.companies?.name ||
+          'Minha Empresa',
+
+        company_plan:
+          data.companies?.plan ||
+          'pro_trial'
       };
 
       localStorage.setItem(
@@ -134,100 +166,148 @@ const Auth = {
       );
 
       return userProfile;
+
     } catch (err) {
-      console.error('Falha de rede ao carregar perfil:', err);
+
+      console.error(
+        'Falha ao carregar perfil:',
+        err
+      );
+
       return null;
     }
   },
 
-  // Atualiza as informações do usuário e da empresa na barra superior/sidebar
   updateUserUI(profile) {
-    if (!profile) return;
 
-    const userNames = document.querySelectorAll('.user-name-display');
+    if (!profile) {
+      return;
+    }
 
-    userNames.forEach(el => {
-      el.textContent = profile.name;
-    });
-
-    const userRoles = document.querySelectorAll('.user-role-display');
-
-    userRoles.forEach(el => {
-      el.textContent =
-        profile.role === 'admin'
-          ? 'Administrador'
-          : 'Funcionário';
-    });
-
-    const companyNames =
-      document.querySelectorAll('.company-name-display');
-
-    companyNames.forEach(el => {
-      el.textContent = profile.company_name;
-    });
-
-    const companyAvatars =
-      document.querySelectorAll('.company-avatar-display');
-
-    companyAvatars.forEach(el => {
-      el.textContent = profile.company_name
-        .substring(0, 2)
-        .toUpperCase();
-    });
-
-    const userAvatars =
-      document.querySelectorAll('.user-avatar-display');
-
-    userAvatars.forEach(el => {
-      el.textContent = profile.name
-        .substring(0, 1)
-        .toUpperCase();
-    });
-
-    // Se for funcionário, oculta elementos exclusivos de admin
-    if (profile.role !== 'admin') {
-      const adminOnlyEls =
-        document.querySelectorAll('.admin-only');
-
-      adminOnlyEls.forEach(el => {
-        el.style.display = 'none';
+    document
+      .querySelectorAll('.user-name-display')
+      .forEach(el => {
+        el.textContent = profile.name;
       });
+
+    document
+      .querySelectorAll('.user-role-display')
+      .forEach(el => {
+        el.textContent =
+          profile.role === 'admin'
+            ? 'Administrador'
+            : 'Funcionário';
+      });
+
+    document
+      .querySelectorAll('.company-name-display')
+      .forEach(el => {
+        el.textContent = profile.company_name;
+      });
+
+    document
+      .querySelectorAll('.company-avatar-display')
+      .forEach(el => {
+        el.textContent =
+          profile.company_name
+            .substring(0, 2)
+            .toUpperCase();
+      });
+
+    document
+      .querySelectorAll('.user-avatar-display')
+      .forEach(el => {
+        el.textContent =
+          profile.name
+            .substring(0, 1)
+            .toUpperCase();
+      });
+
+    if (profile.role !== 'admin') {
+
+      document
+        .querySelectorAll('.admin-only')
+        .forEach(el => {
+          el.style.display = 'none';
+        });
+
     }
   },
 
-  // Login com e-mail e senha
   async signIn(email, password) {
+
     const client = getSupabase();
 
     if (!client) {
+
       UI.showToast(
         'error',
         'Configuração Pendente',
-        'Supabase ainda não foi configurado em js/config.js'
+        'Supabase ainda não foi configurado.'
       );
 
-      return { success: false };
+      return {
+        success: false
+      };
     }
 
     try {
-      const { data, error } =
-        await client.auth.signInWithPassword({
-          email: email.trim(),
-          password: password
-        });
+
+      const cleanEmail = email.trim();
+
+      const {
+        data,
+        error
+      } = await client.auth.signInWithPassword({
+        email: cleanEmail,
+        password
+      });
 
       if (error) {
-        let msg = 'E-mail ou senha incorretos.';
+
+        console.error(
+          'Erro Supabase Login:',
+          error
+        );
+
+        let msg =
+          'E-mail ou senha incorretos.';
+
+        const errorMessage =
+          String(error.message || '').toLowerCase();
 
         if (
-          error.message.includes('Invalid login credentials')
+          errorMessage.includes(
+            'email not confirmed'
+          )
         ) {
-          msg = 'E-mail ou senha inválidos.';
-        } else if (
-          error.message.includes('Email not confirmed')
-        ) {
+
           msg =
-            'Confirmação de e-mail pendente. Verifique sua caixa de entrada.';
+            'O e-mail desta conta ainda não foi confirmado. Desative a confirmação de e-mail no Supabase ou confirme o endereço.';
+
+        } else if (
+          errorMessage.includes(
+            'invalid login credentials'
+          )
+        ) {
+
+          msg =
+            'E-mail ou senha inválidos.';
+
+        } else if (
+          errorMessage.includes(
+            'user not found'
+          )
+        ) {
+
+          msg =
+            'Nenhuma conta foi encontrada com este e-mail.';
+
+        } else if (
+          error.message
+        ) {
+
+          msg = error.message;
         }
 
         UI.showToast(
@@ -242,43 +322,82 @@ const Auth = {
         };
       }
 
-      // Limpa cache antigo para garantir que o perfil
-      // mais recente seja carregado do banco
+      if (!data?.user) {
+
+        UI.showToast(
+          'error',
+          'Falha no Login',
+          'Usuário não retornado pelo Supabase.'
+        );
+
+        return {
+          success: false
+        };
+      }
+
+      if (!data.session) {
+
+        UI.showToast(
+          'error',
+          'Sessão não criada',
+          'O Supabase não criou uma sessão para este usuário.'
+        );
+
+        return {
+          success: false
+        };
+      }
+
       this.clearSessionCache();
 
-      // Carrega perfil
       const profile =
-        await this.loadUserProfile(data.user.id);
+        await this.loadUserProfile(
+          data.user.id
+        );
 
       if (!profile) {
+
         UI.showToast(
-          'warning',
-          'Aviso',
-          'Perfil em criação. Redirecionando...'
+          'error',
+          'Perfil não encontrado',
+          'A conta existe, mas não encontramos a empresa vinculada.'
         );
+
+        await client.auth.signOut();
+
+        return {
+          success: false
+        };
       }
 
       UI.showToast(
         'success',
         'Bem-vindo!',
-        'Login realizado com sucesso.'
+        `Olá, ${profile.name}!`
       );
 
       setTimeout(() => {
-        window.location.href = 'dashboard.html';
+        window.location.href =
+          'dashboard.html';
       }, 500);
 
       return {
         success: true,
-        data
+        data,
+        profile
       };
+
     } catch (err) {
-      console.error('Erro no login:', err);
+
+      console.error(
+        'Erro inesperado no login:',
+        err
+      );
 
       UI.showToast(
         'error',
         'Erro',
-        'Não foi possível conectar ao servidor.'
+        'Não foi possível realizar o login.'
       );
 
       return {
@@ -288,65 +407,151 @@ const Auth = {
     }
   },
 
-  // Cadastro com criação automática de Empresa e Perfil Admin
-  async signUp(name, companyName, email, password) {
+  async signUp(
+    name,
+    companyName,
+    email,
+    password
+  ) {
+
     const client = getSupabase();
 
     if (!client) {
+
       UI.showToast(
         'error',
         'Configuração Pendente',
-        'Supabase ainda não foi configurado em js/config.js'
+        'Supabase ainda não foi configurado.'
       );
 
-      return { success: false };
+      return {
+        success: false
+      };
     }
 
     try {
-      /*
-       * URL para onde o Supabase deve retornar o usuário
-       * depois da confirmação do e-mail.
-       *
-       * Usa o domínio atual automaticamente:
-       * - Vercel em produção
-       * - localhost em desenvolvimento
-       *
-       * Não usa localhost fixo.
-       */
-      const redirectUrl =
-        `${window.location.origin}/login.html`;
 
-      // 1. Cria usuário no Supabase Auth
+      const cleanName =
+        name.trim();
+
+      const cleanCompanyName =
+        companyName.trim();
+
+      const cleanEmail =
+        email.trim().toLowerCase();
+
+      if (!cleanName) {
+
+        UI.showToast(
+          'error',
+          'Cadastro',
+          'Informe seu nome.'
+        );
+
+        return {
+          success: false
+        };
+      }
+
+      if (!cleanCompanyName) {
+
+        UI.showToast(
+          'error',
+          'Cadastro',
+          'Informe o nome da empresa.'
+        );
+
+        return {
+          success: false
+        };
+      }
+
+      if (!cleanEmail) {
+
+        UI.showToast(
+          'error',
+          'Cadastro',
+          'Informe seu e-mail.'
+        );
+
+        return {
+          success: false
+        };
+      }
+
+      if (!password || password.length < 6) {
+
+        UI.showToast(
+          'error',
+          'Cadastro',
+          'A senha deve ter pelo menos 6 caracteres.'
+        );
+
+        return {
+          success: false
+        };
+      }
+
+      /*
+       * CRIAÇÃO DO USUÁRIO
+       *
+       * A confirmação de e-mail deve estar
+       * desativada no Supabase.
+       */
       const {
         data: authData,
         error: authError
       } = await client.auth.signUp({
-        email: email.trim(),
-        password: password,
+
+        email: cleanEmail,
+
+        password,
 
         options: {
-          emailRedirectTo: redirectUrl,
 
           data: {
-            full_name: name.trim(),
-            company_name: companyName.trim()
+            full_name: cleanName,
+            company_name: cleanCompanyName
           }
+
         }
+
       });
 
       if (authError) {
-        let msg = authError.message;
+
+        console.error(
+          'Erro Supabase Signup:',
+          authError
+        );
+
+        let msg =
+          authError.message;
+
+        const errorMessage =
+          String(authError.message || '').toLowerCase();
 
         if (
-          msg.includes('User already registered')
+          errorMessage.includes(
+            'user already registered'
+          )
         ) {
+
           msg =
             'Já existe uma conta cadastrada com este e-mail.';
+
         } else if (
-          msg.includes('Password should be at least')
+          errorMessage.includes(
+            'password'
+          ) &&
+          errorMessage.includes(
+            '6'
+          )
         ) {
+
           msg =
             'A senha deve ter pelo menos 6 caracteres.';
+
         }
 
         UI.showToast(
@@ -361,16 +566,12 @@ const Auth = {
         };
       }
 
-      /*
-       * O Supabase pode retornar um usuário existente
-       * sem criar uma sessão dependendo da configuração
-       * de confirmação de e-mail.
-       */
-      if (!authData || !authData.user) {
+      if (!authData?.user) {
+
         UI.showToast(
           'error',
           'Falha no Cadastro',
-          'Não foi possível criar o usuário.'
+          'O usuário não foi criado.'
         );
 
         return {
@@ -379,34 +580,96 @@ const Auth = {
       }
 
       /*
-       * CASO 1:
-       * Confirmação de e-mail DESATIVADA.
-       *
-       * Nesse caso já existe sessão e podemos
-       * provisionar a empresa imediatamente.
+       * COM CONFIRMAÇÃO DE E-MAIL DESATIVADA,
+       * o Supabase deve retornar uma sessão.
        */
-      if (authData.session) {
+
+      let session =
+        authData.session;
+
+      /*
+       * Caso o Supabase não tenha retornado
+       * sessão imediatamente, tentamos recuperar
+       * a sessão atual.
+       */
+      if (!session) {
+
         const {
-          error: rpcError
-        } = await client.rpc(
-          'register_company_and_admin',
-          {
-            p_company_name: companyName.trim(),
-            p_user_name: name.trim(),
-            p_user_email: email.trim()
-          }
+          data: sessionData
+        } = await client.auth.getSession();
+
+        session =
+          sessionData?.session || null;
+      }
+
+      /*
+       * Se ainda não existe sessão,
+       * o cadastro não pode provisionar a empresa
+       * porque a RPC exige usuário autenticado.
+       */
+      if (!session) {
+
+        UI.showToast(
+          'error',
+          'Cadastro incompleto',
+          'O usuário foi criado, mas o Supabase não criou uma sessão. Verifique se "Confirm email" está desativado no Authentication > Providers > Email.'
         );
 
-        if (rpcError) {
-          console.error(
-            'Erro na RPC de registro:',
-            rpcError
+        return {
+          success: false,
+          error: new Error(
+            'Usuário criado sem sessão.'
+          )
+        };
+      }
+
+      /*
+       * CRIA EMPRESA + PERFIL ADMIN
+       *
+       * A RPC também cria as categorias iniciais
+       * e o trial de 7 dias.
+       */
+      const {
+        data: companyData,
+        error: rpcError
+      } = await client.rpc(
+        'register_company_and_admin',
+        {
+          p_company_name:
+            cleanCompanyName,
+
+          p_user_name:
+            cleanName,
+
+          p_user_email:
+            cleanEmail
+        }
+      );
+
+      if (rpcError) {
+
+        console.error(
+          'Erro na RPC register_company_and_admin:',
+          rpcError
+        );
+
+        /*
+         * Se por algum motivo o perfil já existir,
+         * tenta carregar o perfil antes de considerar
+         * o cadastro perdido.
+         */
+        const existingProfile =
+          await this.loadUserProfile(
+            authData.user.id
           );
+
+        if (!existingProfile) {
 
           UI.showToast(
             'error',
-            'Erro',
-            'Falha ao provisionar empresa. Contate o suporte.'
+            'Erro no cadastro',
+            rpcError.message ||
+            'Não foi possível criar sua empresa.'
           );
 
           return {
@@ -414,51 +677,62 @@ const Auth = {
             error: rpcError
           };
         }
+      }
 
-        // Garante que o cache antigo não permaneça
-        this.clearSessionCache();
+      /*
+       * Limpa qualquer cache antigo.
+       */
+      this.clearSessionCache();
 
-        UI.showToast(
-          'success',
-          'Conta criada!',
-          'Sua empresa foi configurada com sucesso.'
+      /*
+       * Busca novamente o perfil recém-criado.
+       */
+      const profile =
+        await this.loadUserProfile(
+          authData.user.id
         );
 
-        setTimeout(() => {
-          window.location.href = 'dashboard.html';
-        }, 800);
+      if (!profile) {
+
+        UI.showToast(
+          'error',
+          'Erro no cadastro',
+          'A empresa foi criada, mas o perfil ainda não pôde ser carregado.'
+        );
 
         return {
-          success: true,
-          data: authData
+          success: false
         };
       }
 
       /*
-       * CASO 2:
-       * Confirmação de e-mail ATIVADA.
-       *
-       * Não tentamos executar a RPC aqui porque ainda
-       * não existe uma sessão autenticada no navegador.
-       *
-       * O usuário precisa primeiro confirmar o e-mail.
+       * Tudo pronto.
        */
       UI.showToast(
-        'info',
-        'Quase lá!',
-        'Enviamos um link de confirmação para o seu e-mail. Confirme para acessar.',
-        7000
+        'success',
+        'Conta criada!',
+        'Seu estoque está pronto. Você tem 7 dias grátis.'
       );
+
+      setTimeout(() => {
+        window.location.href =
+          'dashboard.html';
+      }, 700);
 
       return {
         success: true,
-        emailConfirmationRequired: true,
-        data: authData
+        data: {
+          user: authData.user,
+          session,
+          company: companyData,
+          profile
+        }
       };
 
     } catch (err) {
+
       console.error(
-        'Erro no cadastro:',
+        'Erro inesperado no cadastro:',
         err
       );
 
@@ -475,11 +749,12 @@ const Auth = {
     }
   },
 
-  // Recuperação de senha
   async resetPassword(email) {
+
     const client = getSupabase();
 
     if (!client) {
+
       UI.showToast(
         'error',
         'Configuração Pendente',
@@ -492,9 +767,12 @@ const Auth = {
     }
 
     try {
-      const { error } =
-        await client.auth.resetPasswordForEmail(
-          email.trim(),
+
+      const {
+        error
+      } = await client.auth
+        .resetPasswordForEmail(
+          email.trim().toLowerCase(),
           {
             redirectTo:
               window.location.origin +
@@ -503,10 +781,17 @@ const Auth = {
         );
 
       if (error) {
+
+        console.error(
+          'Erro recuperação:',
+          error
+        );
+
         UI.showToast(
           'error',
           'Erro',
-          'Não foi possível enviar e-mail de recuperação.'
+          error.message ||
+          'Não foi possível enviar o e-mail de recuperação.'
         );
 
         return {
@@ -518,13 +803,20 @@ const Auth = {
       UI.showToast(
         'success',
         'E-mail enviado',
-        'Verifique sua caixa de entrada para redefinir sua senha.'
+        'Verifique sua caixa de entrada.'
       );
 
       return {
         success: true
       };
+
     } catch (err) {
+
+      console.error(
+        'Erro recuperação:',
+        err
+      );
+
       UI.showToast(
         'error',
         'Erro',
@@ -538,13 +830,14 @@ const Auth = {
     }
   },
 
-  // Logout seguro
   async signOut() {
+
     this.clearSessionCache();
 
     const client = getSupabase();
 
     if (client) {
+
       try {
         await client.auth.signOut();
       } catch (e) {
@@ -555,22 +848,27 @@ const Auth = {
       }
     }
 
-    window.location.href = 'login.html';
+    window.location.href =
+      'login.html';
   },
 
   clearSessionCache() {
+
     localStorage.removeItem(
       'ks_user_profile'
     );
   },
 
   getCurrentUser() {
+
     const cached =
       localStorage.getItem(
         'ks_user_profile'
       );
 
-    if (!cached) return null;
+    if (!cached) {
+      return null;
+    }
 
     try {
       return JSON.parse(cached);
@@ -578,6 +876,7 @@ const Auth = {
       return null;
     }
   }
+
 };
 
 window.Auth = Auth;
