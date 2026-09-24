@@ -1,64 +1,464 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <title>Recuperar Senha — KS Stock</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><rect width='24' height='24' rx='6' fill='%234f46e5'/><text x='50%25' y='68%25' font-size='14' font-weight='bold' text-anchor='middle' fill='white'>KS</text></svg>">
+
+  <link
+    rel="stylesheet"
+    href="css/style.css"
+  >
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><rect width='24' height='24' rx='6' fill='%234f46e5'/><text x='50%25' y='68%25' font-size='14' font-weight='bold' text-anchor='middle' fill='white'>KS</text></svg>"
+  >
+
 </head>
+
+
 <body>
+
   <div class="auth-wrapper">
+
     <div class="auth-box">
+
       <div class="auth-header">
+
         <div class="auth-brand">
-          <div class="auth-brand-logo">KS</div>
-          <span class="auth-brand-name">KS Stock</span>
+
+          <div class="auth-brand-logo">
+            KS
+          </div>
+
+          <span class="auth-brand-name">
+            KS Stock
+          </span>
+
         </div>
-        <h1 class="auth-title">Recuperação de Senha</h1>
-        <p class="auth-subtitle">Informe seu e-mail cadastrado para receber as instruções.</p>
+
+        <h1
+          class="auth-title"
+          id="page-title"
+        >
+          Recuperação de Senha
+        </h1>
+
+        <p
+          class="auth-subtitle"
+          id="page-subtitle"
+        >
+          Informe seu e-mail cadastrado para receber as instruções.
+        </p>
+
       </div>
 
-      <form id="form-reset">
+
+      <!-- SOLICITAR RECUPERAÇÃO -->
+
+      <form
+        id="form-reset"
+      >
+
         <div class="form-group">
-          <label class="form-label" for="reset-email">E-mail Cadastrado</label>
-          <input type="email" id="reset-email" class="form-control" placeholder="seu@email.com" required autocomplete="email">
+
+          <label
+            class="form-label"
+            for="reset-email"
+          >
+            E-mail Cadastrado
+          </label>
+
+          <input
+            type="email"
+            id="reset-email"
+            class="form-control"
+            placeholder="seu@email.com"
+            required
+            autocomplete="email"
+          >
+
         </div>
 
-        <button type="submit" id="btn-submit-reset" class="btn btn-primary btn-block" style="padding: 0.75rem; margin-top: 1rem;">
+
+        <button
+          type="submit"
+          id="btn-submit-reset"
+          class="btn btn-primary btn-block"
+          style="padding:0.75rem;margin-top:1rem;"
+        >
           Enviar Link de Recuperação
         </button>
+
       </form>
 
+
+      <!-- ALTERAR SENHA -->
+
+      <form
+        id="form-new-password"
+        style="display:none;"
+      >
+
+        <div class="form-group">
+
+          <label
+            class="form-label"
+            for="new-password"
+          >
+            Nova senha
+          </label>
+
+          <input
+            type="password"
+            id="new-password"
+            class="form-control"
+            placeholder="Mínimo 6 caracteres"
+            minlength="6"
+            required
+            autocomplete="new-password"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label
+            class="form-label"
+            for="confirm-password"
+          >
+            Confirmar nova senha
+          </label>
+
+          <input
+            type="password"
+            id="confirm-password"
+            class="form-control"
+            placeholder="Digite novamente"
+            minlength="6"
+            required
+            autocomplete="new-password"
+          >
+
+        </div>
+
+
+        <button
+          type="submit"
+          id="btn-submit-password"
+          class="btn btn-primary btn-block"
+          style="padding:0.75rem;margin-top:1rem;"
+        >
+          Alterar Senha
+        </button>
+
+      </form>
+
+
       <div class="auth-footer-links">
-        Lembrou da senha? <a href="login.html">Voltar para o login</a>
+
+        <span id="login-link-wrapper">
+          Lembrou da senha?
+          <a href="login.html">
+            Voltar para o login
+          </a>
+        </span>
+
       </div>
+
     </div>
+
   </div>
 
-  <!-- CDN Supabase JS Client v2 -->
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script src="js/config.js"></script>
+
   <script src="js/supabase-client.js"></script>
+
   <script src="js/ui.js"></script>
+
   <script src="js/auth.js"></script>
+
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('form-reset');
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('reset-email').value;
-        const btn = document.getElementById('btn-submit-reset');
 
-        btn.disabled = true;
-        btn.textContent = 'Enviando...';
+    document.addEventListener(
+      'DOMContentLoaded',
+      async () => {
 
-        await Auth.resetPassword(email);
+        const formReset =
+          document.getElementById(
+            'form-reset'
+          );
 
-        btn.disabled = false;
-        btn.textContent = 'Enviar Link de Recuperação';
-      });
-    });
+        const formNewPassword =
+          document.getElementById(
+            'form-new-password'
+          );
+
+        const pageTitle =
+          document.getElementById(
+            'page-title'
+          );
+
+        const pageSubtitle =
+          document.getElementById(
+            'page-subtitle'
+          );
+
+        const loginWrapper =
+          document.getElementById(
+            'login-link-wrapper'
+          );
+
+
+        const client =
+          getSupabase();
+
+
+        /*
+         * Verifica se existe sessão
+         * de recuperação de senha.
+         */
+
+        if (client) {
+
+          const {
+            data: {
+              session
+            }
+          } =
+            await client.auth.getSession();
+
+
+          if (session) {
+
+            const hash =
+              window.location.hash || '';
+
+
+            const search =
+              window.location.search || '';
+
+
+            const isRecovery =
+              hash.includes(
+                'type=recovery'
+              ) ||
+              search.includes(
+                'type=recovery'
+              );
+
+
+            if (isRecovery) {
+
+              showPasswordForm();
+
+            }
+
+          }
+
+
+          client.auth.onAuthStateChange(
+            async (event) => {
+
+              if (
+                event ===
+                'PASSWORD_RECOVERY'
+              ) {
+
+                showPasswordForm();
+
+              }
+
+            }
+          );
+
+        }
+
+
+        function showPasswordForm() {
+
+          if (formReset) {
+            formReset.style.display =
+              'none';
+          }
+
+          if (formNewPassword) {
+            formNewPassword.style.display =
+              'block';
+          }
+
+          if (pageTitle) {
+            pageTitle.textContent =
+              'Nova Senha';
+          }
+
+          if (pageSubtitle) {
+            pageSubtitle.textContent =
+              'Digite sua nova senha de acesso ao KS Stock.';
+          }
+
+          if (loginWrapper) {
+            loginWrapper.innerHTML = `
+              <a href="login.html">
+                Voltar para o login
+              </a>
+            `;
+          }
+
+        }
+
+
+        if (formReset) {
+
+          formReset.addEventListener(
+            'submit',
+            async (e) => {
+
+              e.preventDefault();
+
+
+              const email =
+                document
+                  .getElementById(
+                    'reset-email'
+                  )
+                  .value
+                  .trim();
+
+
+              const btn =
+                document.getElementById(
+                  'btn-submit-reset'
+                );
+
+
+              btn.disabled =
+                true;
+
+              btn.textContent =
+                'Enviando...';
+
+
+              await Auth.resetPassword(
+                email
+              );
+
+
+              btn.disabled =
+                false;
+
+              btn.textContent =
+                'Enviar Link de Recuperação';
+
+            }
+          );
+
+        }
+
+
+        if (formNewPassword) {
+
+          formNewPassword.addEventListener(
+            'submit',
+            async (e) => {
+
+              e.preventDefault();
+
+
+              const password =
+                document
+                  .getElementById(
+                    'new-password'
+                  )
+                  .value;
+
+
+              const confirmation =
+                document
+                  .getElementById(
+                    'confirm-password'
+                  )
+                  .value;
+
+
+              if (
+                password !==
+                confirmation
+              ) {
+
+                UI.showToast(
+                  'warning',
+                  'Senhas diferentes',
+                  'As duas senhas precisam ser iguais.'
+                );
+
+                return;
+              }
+
+
+              const btn =
+                document.getElementById(
+                  'btn-submit-password'
+                );
+
+
+              btn.disabled =
+                true;
+
+              btn.textContent =
+                'Alterando...';
+
+
+              const result =
+                await Auth.updatePassword(
+                  password
+                );
+
+
+              if (
+                result.success
+              ) {
+
+                setTimeout(() => {
+
+                  window.location.href =
+                    'login.html';
+
+                }, 1200);
+
+              }
+
+
+              btn.disabled =
+                false;
+
+              btn.textContent =
+                'Alterar Senha';
+
+            }
+          );
+
+        }
+
+      }
+    );
+
   </script>
+
 </body>
+
 </html>
