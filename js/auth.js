@@ -6,18 +6,28 @@
 const Auth = {
 
   async requireAuth() {
+
     UI.checkSupabaseBanner();
 
     if (!CONFIG.isSupabaseConfigured()) {
-      console.warn('Supabase não configurado.');
+
+      console.warn(
+        'Supabase não configurado.'
+      );
+
       return null;
+
     }
 
     const client = getSupabase();
 
     if (!client) {
-      window.location.href = 'login.html';
+
+      window.location.href =
+        'login.html';
+
       return null;
+
     }
 
     const {
@@ -26,14 +36,23 @@ const Auth = {
     } = await client.auth.getSession();
 
     if (error || !session) {
+
       this.clearSessionCache();
-      window.location.href = 'login.html';
+
+      window.location.href =
+        'login.html';
+
       return null;
+
     }
 
-    const profile = await this.loadUserProfile(session.user.id);
+    const profile =
+      await this.loadUserProfile(
+        session.user.id
+      );
 
     if (!profile) {
+
       UI.showToast(
         'error',
         'Perfil não encontrado',
@@ -41,35 +60,51 @@ const Auth = {
       );
 
       return null;
+
     }
 
     this.updateUserUI(profile);
 
-    if (typeof Subscription !== 'undefined') {
-      const subscriptionAllowed = await Subscription.init();
+    if (
+      typeof Subscription !==
+      'undefined'
+    ) {
+
+      const subscriptionAllowed =
+        await Subscription.init();
 
       if (!subscriptionAllowed) {
+
         return null;
+
       }
+
     }
 
     return {
       session,
       profile
     };
+
   },
 
+
   async redirectIfAuthenticated() {
+
     UI.checkSupabaseBanner();
 
     if (!CONFIG.isSupabaseConfigured()) {
+
       return;
+
     }
 
     const client = getSupabase();
 
     if (!client) {
+
       return;
+
     }
 
     const {
@@ -77,35 +112,55 @@ const Auth = {
     } = await client.auth.getSession();
 
     if (session) {
-      window.location.href = 'dashboard.html';
+
+      window.location.href =
+        'dashboard.html';
+
     }
+
   },
+
 
   async loadUserProfile(userId) {
 
-    const cached = localStorage.getItem('ks_user_profile');
+    const cached =
+      localStorage.getItem(
+        'ks_user_profile'
+      );
 
     if (cached) {
+
       try {
-        const parsed = JSON.parse(cached);
+
+        const parsed =
+          JSON.parse(cached);
 
         if (
           parsed &&
           parsed.id === userId &&
           parsed.company_id
         ) {
+
           return parsed;
+
         }
 
       } catch (e) {
-        localStorage.removeItem('ks_user_profile');
+
+        localStorage.removeItem(
+          'ks_user_profile'
+        );
+
       }
+
     }
 
     const client = getSupabase();
 
     if (!client) {
+
       return null;
+
     }
 
     try {
@@ -128,28 +183,48 @@ const Auth = {
             plan
           )
         `)
-        .eq('id', userId)
+        .eq(
+          'id',
+          userId
+        )
         .maybeSingle();
 
       if (error) {
+
         console.error(
           'Erro ao buscar perfil:',
           error
         );
 
         return null;
+
       }
 
       if (!data) {
+
         return null;
+
       }
 
       const userProfile = {
-        id: data.id,
-        name: data.name || 'Usuário',
-        email: data.email || '',
-        role: data.role || 'employee',
-        company_id: data.company_id,
+
+        id:
+          data.id,
+
+        name:
+          data.name ||
+          'Usuário',
+
+        email:
+          data.email ||
+          '',
+
+        role:
+          data.role ||
+          'employee',
+
+        company_id:
+          data.company_id,
 
         company_name:
           data.companies?.name ||
@@ -158,11 +233,14 @@ const Auth = {
         company_plan:
           data.companies?.plan ||
           'pro_trial'
+
       };
 
       localStorage.setItem(
         'ks_user_profile',
-        JSON.stringify(userProfile)
+        JSON.stringify(
+          userProfile
+        )
       );
 
       return userProfile;
@@ -175,68 +253,113 @@ const Auth = {
       );
 
       return null;
+
     }
+
   },
+
 
   updateUserUI(profile) {
 
     if (!profile) {
+
       return;
+
     }
 
     document
-      .querySelectorAll('.user-name-display')
+      .querySelectorAll(
+        '.user-name-display'
+      )
       .forEach(el => {
-        el.textContent = profile.name;
+
+        el.textContent =
+          profile.name;
+
       });
 
+
     document
-      .querySelectorAll('.user-role-display')
+      .querySelectorAll(
+        '.user-role-display'
+      )
       .forEach(el => {
+
         el.textContent =
           profile.role === 'admin'
             ? 'Administrador'
             : 'Funcionário';
+
       });
 
-    document
-      .querySelectorAll('.company-name-display')
-      .forEach(el => {
-        el.textContent = profile.company_name;
-      });
 
     document
-      .querySelectorAll('.company-avatar-display')
+      .querySelectorAll(
+        '.company-name-display'
+      )
       .forEach(el => {
+
+        el.textContent =
+          profile.company_name;
+
+      });
+
+
+    document
+      .querySelectorAll(
+        '.company-avatar-display'
+      )
+      .forEach(el => {
+
         el.textContent =
           profile.company_name
             .substring(0, 2)
             .toUpperCase();
+
       });
 
+
     document
-      .querySelectorAll('.user-avatar-display')
+      .querySelectorAll(
+        '.user-avatar-display'
+      )
       .forEach(el => {
+
         el.textContent =
           profile.name
             .substring(0, 1)
             .toUpperCase();
+
       });
 
-    if (profile.role !== 'admin') {
+
+    if (
+      profile.role !== 'admin'
+    ) {
 
       document
-        .querySelectorAll('.admin-only')
+        .querySelectorAll(
+          '.admin-only'
+        )
         .forEach(el => {
-          el.style.display = 'none';
+
+          el.style.display =
+            'none';
+
         });
 
     }
+
   },
 
-  async signIn(email, password) {
 
-    const client = getSupabase();
+  async signIn(
+    email,
+    password
+  ) {
+
+    const client =
+      getSupabase();
 
     if (!client) {
 
@@ -249,19 +372,27 @@ const Auth = {
       return {
         success: false
       };
+
     }
 
     try {
 
-      const cleanEmail = email.trim();
+      const cleanEmail =
+        email.trim();
 
       const {
         data,
         error
-      } = await client.auth.signInWithPassword({
-        email: cleanEmail,
-        password
-      });
+      } = await client.auth
+        .signInWithPassword({
+
+          email:
+            cleanEmail,
+
+          password
+
+        });
+
 
       if (error) {
 
@@ -274,7 +405,10 @@ const Auth = {
           'E-mail ou senha incorretos.';
 
         const errorMessage =
-          String(error.message || '').toLowerCase();
+          String(
+            error.message || ''
+          ).toLowerCase();
+
 
         if (
           errorMessage.includes(
@@ -307,8 +441,11 @@ const Auth = {
           error.message
         ) {
 
-          msg = error.message;
+          msg =
+            error.message;
+
         }
+
 
         UI.showToast(
           'error',
@@ -320,7 +457,9 @@ const Auth = {
           success: false,
           error
         };
+
       }
+
 
       if (!data?.user) {
 
@@ -333,7 +472,9 @@ const Auth = {
         return {
           success: false
         };
+
       }
+
 
       if (!data.session) {
 
@@ -346,14 +487,18 @@ const Auth = {
         return {
           success: false
         };
+
       }
 
+
       this.clearSessionCache();
+
 
       const profile =
         await this.loadUserProfile(
           data.user.id
         );
+
 
       if (!profile) {
 
@@ -368,7 +513,9 @@ const Auth = {
         return {
           success: false
         };
+
       }
+
 
       UI.showToast(
         'success',
@@ -376,16 +523,34 @@ const Auth = {
         `Olá, ${profile.name}!`
       );
 
+
+      /*
+       * ATIVA A INTRO SOMENTE NA ENTRADA
+       * REAL DO SISTEMA.
+       *
+       * O app.js consome esta flag
+       * e remove imediatamente.
+       */
+      sessionStorage.setItem(
+        'ks_show_system_intro',
+        '1'
+      );
+
+
       setTimeout(() => {
+
         window.location.href =
           'dashboard.html';
+
       }, 500);
+
 
       return {
         success: true,
         data,
         profile
       };
+
 
     } catch (err) {
 
@@ -404,8 +569,11 @@ const Auth = {
         success: false,
         error: err
       };
+
     }
+
   },
+
 
   async signUp(
     name,
@@ -414,7 +582,8 @@ const Auth = {
     password
   ) {
 
-    const client = getSupabase();
+    const client =
+      getSupabase();
 
     if (!client) {
 
@@ -427,6 +596,7 @@ const Auth = {
       return {
         success: false
       };
+
     }
 
     try {
@@ -438,7 +608,10 @@ const Auth = {
         companyName.trim();
 
       const cleanEmail =
-        email.trim().toLowerCase();
+        email
+          .trim()
+          .toLowerCase();
+
 
       if (!cleanName) {
 
@@ -451,7 +624,9 @@ const Auth = {
         return {
           success: false
         };
+
       }
+
 
       if (!cleanCompanyName) {
 
@@ -464,7 +639,9 @@ const Auth = {
         return {
           success: false
         };
+
       }
+
 
       if (!cleanEmail) {
 
@@ -477,9 +654,14 @@ const Auth = {
         return {
           success: false
         };
+
       }
 
-      if (!password || password.length < 6) {
+
+      if (
+        !password ||
+        password.length < 6
+      ) {
 
         UI.showToast(
           'error',
@@ -490,33 +672,34 @@ const Auth = {
         return {
           success: false
         };
+
       }
 
-      /*
-       * CRIAÇÃO DO USUÁRIO
-       *
-       * A confirmação de e-mail deve estar
-       * desativada no Supabase.
-       */
+
       const {
         data: authData,
         error: authError
       } = await client.auth.signUp({
 
-        email: cleanEmail,
+        email:
+          cleanEmail,
 
         password,
 
         options: {
 
           data: {
-            full_name: cleanName,
-            company_name: cleanCompanyName
+            full_name:
+              cleanName,
+
+            company_name:
+              cleanCompanyName
           }
 
         }
 
       });
+
 
       if (authError) {
 
@@ -529,7 +712,10 @@ const Auth = {
           authError.message;
 
         const errorMessage =
-          String(authError.message || '').toLowerCase();
+          String(
+            authError.message || ''
+          ).toLowerCase();
+
 
         if (
           errorMessage.includes(
@@ -554,6 +740,7 @@ const Auth = {
 
         }
 
+
         UI.showToast(
           'error',
           'Falha no Cadastro',
@@ -564,7 +751,9 @@ const Auth = {
           success: false,
           error: authError
         };
+
       }
+
 
       if (!authData?.user) {
 
@@ -577,36 +766,28 @@ const Auth = {
         return {
           success: false
         };
+
       }
 
-      /*
-       * COM CONFIRMAÇÃO DE E-MAIL DESATIVADA,
-       * o Supabase deve retornar uma sessão.
-       */
 
       let session =
         authData.session;
 
-      /*
-       * Caso o Supabase não tenha retornado
-       * sessão imediatamente, tentamos recuperar
-       * a sessão atual.
-       */
+
       if (!session) {
 
         const {
           data: sessionData
-        } = await client.auth.getSession();
+        } =
+          await client.auth.getSession();
 
         session =
-          sessionData?.session || null;
+          sessionData?.session ||
+          null;
+
       }
 
-      /*
-       * Se ainda não existe sessão,
-       * o cadastro não pode provisionar a empresa
-       * porque a RPC exige usuário autenticado.
-       */
+
       if (!session) {
 
         UI.showToast(
@@ -621,30 +802,30 @@ const Auth = {
             'Usuário criado sem sessão.'
           )
         };
+
       }
 
-      /*
-       * CRIA EMPRESA + PERFIL ADMIN
-       *
-       * A RPC também cria as categorias iniciais
-       * e o trial de 7 dias.
-       */
+
       const {
         data: companyData,
         error: rpcError
-      } = await client.rpc(
-        'register_company_and_admin',
-        {
-          p_company_name:
-            cleanCompanyName,
+      } =
+        await client.rpc(
+          'register_company_and_admin',
+          {
 
-          p_user_name:
-            cleanName,
+            p_company_name:
+              cleanCompanyName,
 
-          p_user_email:
-            cleanEmail
-        }
-      );
+            p_user_name:
+              cleanName,
+
+            p_user_email:
+              cleanEmail
+
+          }
+        );
+
 
       if (rpcError) {
 
@@ -653,15 +834,12 @@ const Auth = {
           rpcError
         );
 
-        /*
-         * Se por algum motivo o perfil já existir,
-         * tenta carregar o perfil antes de considerar
-         * o cadastro perdido.
-         */
+
         const existingProfile =
           await this.loadUserProfile(
             authData.user.id
           );
+
 
         if (!existingProfile) {
 
@@ -676,21 +854,20 @@ const Auth = {
             success: false,
             error: rpcError
           };
+
         }
+
       }
 
-      /*
-       * Limpa qualquer cache antigo.
-       */
+
       this.clearSessionCache();
 
-      /*
-       * Busca novamente o perfil recém-criado.
-       */
+
       const profile =
         await this.loadUserProfile(
           authData.user.id
         );
+
 
       if (!profile) {
 
@@ -703,31 +880,54 @@ const Auth = {
         return {
           success: false
         };
+
       }
 
-      /*
-       * Tudo pronto.
-       */
+
       UI.showToast(
         'success',
         'Conta criada!',
         'Seu estoque está pronto. Você tem 7 dias grátis.'
       );
 
+
+      /*
+       * ATIVA A INTRO SOMENTE NA ENTRADA
+       * REAL DO SISTEMA.
+       */
+      sessionStorage.setItem(
+        'ks_show_system_intro',
+        '1'
+      );
+
+
       setTimeout(() => {
+
         window.location.href =
           'dashboard.html';
+
       }, 700);
+
 
       return {
         success: true,
+
         data: {
-          user: authData.user,
+
+          user:
+            authData.user,
+
           session,
-          company: companyData,
+
+          company:
+            companyData,
+
           profile
+
         }
+
       };
+
 
     } catch (err) {
 
@@ -746,12 +946,16 @@ const Auth = {
         success: false,
         error: err
       };
+
     }
+
   },
+
 
   async resetPassword(email) {
 
-    const client = getSupabase();
+    const client =
+      getSupabase();
 
     if (!client) {
 
@@ -764,21 +968,26 @@ const Auth = {
       return {
         success: false
       };
+
     }
 
     try {
 
       const {
         error
-      } = await client.auth
-        .resetPasswordForEmail(
-          email.trim().toLowerCase(),
-          {
-            redirectTo:
-              window.location.origin +
-              '/login.html'
-          }
-        );
+      } =
+        await client.auth
+          .resetPasswordForEmail(
+            email
+              .trim()
+              .toLowerCase(),
+            {
+              redirectTo:
+                window.location.origin +
+                '/login.html'
+            }
+          );
+
 
       if (error) {
 
@@ -798,7 +1007,9 @@ const Auth = {
           success: false,
           error
         };
+
       }
+
 
       UI.showToast(
         'success',
@@ -809,6 +1020,7 @@ const Auth = {
       return {
         success: true
       };
+
 
     } catch (err) {
 
@@ -827,37 +1039,57 @@ const Auth = {
         success: false,
         error: err
       };
+
     }
+
   },
+
 
   async signOut() {
 
     this.clearSessionCache();
 
-    const client = getSupabase();
+    /*
+     * NÃO ativa nenhuma flag de intro aqui.
+     * Portanto, logout nunca dispara a intro.
+     */
+
+    const client =
+      getSupabase();
+
 
     if (client) {
 
       try {
+
         await client.auth.signOut();
+
       } catch (e) {
+
         console.error(
           'Erro ao deslogar:',
           e
         );
+
       }
+
     }
+
 
     window.location.href =
       'login.html';
+
   },
+
 
   clearSessionCache() {
 
     localStorage.removeItem(
       'ks_user_profile'
     );
+
   },
+
 
   getCurrentUser() {
 
@@ -866,17 +1098,29 @@ const Auth = {
         'ks_user_profile'
       );
 
+
     if (!cached) {
+
       return null;
+
     }
 
+
     try {
-      return JSON.parse(cached);
+
+      return JSON.parse(
+        cached
+      );
+
     } catch (e) {
+
       return null;
+
     }
+
   }
 
 };
+
 
 window.Auth = Auth;
