@@ -9,10 +9,11 @@ const Subscription = {
   async init() {
     const client = getSupabase();
 
-    if (!client) return false;
+    if (!client) {
+      return false;
+    }
 
     try {
-
       const { data, error } = await client.rpc(
         'get_subscription_info'
       );
@@ -26,14 +27,23 @@ const Subscription = {
         return false;
       }
 
-      this.info = data;
+      this.info = Array.isArray(data)
+        ? data[0] || null
+        : data || null;
+
+      if (!this.info) {
+        console.error(
+          'Nenhuma informação de assinatura foi retornada.'
+        );
+
+        return false;
+      }
 
       this.updateInterface();
 
       return this.isAllowed();
 
     } catch (err) {
-
       console.error(
         'Erro no Subscription:',
         err
@@ -45,8 +55,9 @@ const Subscription = {
 
 
   isAllowed() {
-
-    if (!this.info) return false;
+    if (!this.info) {
+      return false;
+    }
 
     return (
       this.info.status === 'trial' ||
@@ -56,8 +67,9 @@ const Subscription = {
 
 
   isExpired() {
-
-    if (!this.info) return false;
+    if (!this.info) {
+      return false;
+    }
 
     return (
       this.info.status === 'expired' ||
@@ -67,41 +79,144 @@ const Subscription = {
   },
 
 
+  async canCreate(resource) {
+
+    if (!this.info) {
+      const initialized = await this.init();
+
+      if (!initialized) {
+        UI.showToast(
+          'error',
+          'Assinatura',
+          'Não foi possível verificar o status da sua conta.'
+        );
+
+        return false;
+      }
+    }
+
+    if (!this.isAllowed()) {
+      this.showBlockedScreen();
+      return false;
+    }
+
+    const client = getSupabase();
+
+    if (!client) {
+      return false;
+    }
+
+    try {
+
+      const {
+        data,
+        error
+      } = await client.rpc(
+        'check_company_limit',
+        {
+          p_resource: resource
+        }
+      );
+
+      if (error) {
+        console.error(
+          'Erro ao verificar limite:',
+          error
+        );
+
+        UI.showToast(
+          'error',
+          'Erro',
+          'Não foi possível verificar o limite do seu plano.'
+        );
+
+        return false;
+      }
+
+      const result =
+        Array.isArray(data)
+          ? data[0]
+          : data;
+
+      if (!result) {
+        UI.showToast(
+          'error',
+          'Erro',
+          'Não foi possível verificar o limite do seu plano.'
+        );
+
+        return false;
+      }
+
+      if (result.allowed === false) {
+
+        const resourceNames = {
+          products: 'produtos',
+          customers: 'clientes',
+          categories: 'categorias',
+          users: 'usuários',
+          sales: 'vendas neste mês'
+        };
+
+        const resourceName =
+          resourceNames[resource] || resource;
+
+        UI.showToast(
+          'warning',
+          'Limite atingido',
+          `Seu plano atingiu o limite de ${resourceName}.`
+        );
+
+        return false;
+      }
+
+      return true;
+
+    } catch (err) {
+
+      console.error(
+        'Erro ao verificar limite:',
+        err
+      );
+
+      UI.showToast(
+        'error',
+        'Erro',
+        'Não foi possível verificar o limite do plano.'
+      );
+
+      return false;
+    }
+  },
+
+
   updateInterface() {
 
-    if (!this.info) return;
+    if (!this.info) {
+      return;
+    }
 
-    const status = this.info.status;
-    const days = Number(
-      this.info.days_remaining || 0
-    );
+    const status =
+      this.info.status;
 
+    const days =
+      Number(
+        this.info.days_remaining || 0
+      );
 
-    /*
-     * AVISO DO TESTE
-     */
 
     if (
       status === 'trial' &&
       days <= 3 &&
       days > 0
     ) {
-
       this.showTrialWarning(days);
-
     }
 
-
-    /*
-     * BLOQUEIO
-     */
 
     if (this.isExpired()) {
-
       this.showBlockedScreen();
-
     }
-
   },
 
 
@@ -115,12 +230,11 @@ const Subscription = {
       return;
     }
 
+    const warning =
+      document.createElement('div');
 
-    const warning = document.createElement(
-      'div'
-    );
-
-    warning.id = 'ks-trial-warning';
+    warning.id =
+      'ks-trial-warning';
 
     warning.innerHTML = `
       <div style="
@@ -146,24 +260,37 @@ const Subscription = {
     `;
 
     document.body.appendChild(warning);
-
   },
 
 
   showBlockedScreen() {
 
-    /*
-     * Impede a página de continuar sendo utilizada.
-     */
+    if (
+      document.getElementById(
+        'ks-subscription-blocker'
+      )
+    ) {
+      return;
+    }
 
-    document.body.innerHTML = `
+    const blocker =
+      document.createElement('div');
 
+    blocker.id =
+      'ks-subscription-blocker';
+
+    blocker.innerHTML = `
       <div style="
+        position:fixed;
+        inset:0;
+        z-index:999999;
         min-height:100vh;
+        overflow:auto;
         display:flex;
         align-items:center;
         justify-content:center;
         padding:24px;
+        box-sizing:border-box;
         background:#f8fafc;
         font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       ">
@@ -171,12 +298,13 @@ const Subscription = {
         <div style="
           width:100%;
           max-width:520px;
-          background:white;
+          background:#ffffff;
           border:1px solid #e2e8f0;
           border-radius:24px;
           padding:48px 32px;
           text-align:center;
           box-shadow:0 20px 60px rgba(15,23,42,.08);
+          box-sizing:border-box;
         ">
 
           <div style="
@@ -196,6 +324,7 @@ const Subscription = {
           <h1 style="
             margin:0 0 12px;
             font-size:28px;
+            line-height:1.2;
             color:#0f172a;
           ">
             Período de teste encerrado
@@ -227,7 +356,7 @@ const Subscription = {
               padding:14px 22px;
               border-radius:12px;
               background:#16a34a;
-              color:white;
+              color:#ffffff;
               text-decoration:none;
               font-weight:700;
             "
@@ -247,9 +376,10 @@ const Subscription = {
 
       </div>
     `;
+
+    document.body.appendChild(blocker);
   }
 
 };
-
 
 window.Subscription = Subscription;
