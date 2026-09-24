@@ -9,7 +9,7 @@ const AdminAuth = {
         const client = getSupabase();
 
         if (!client) {
-            window.location.href = '../login.html';
+            window.location.href = '/admin/login.html';
             return null;
         }
 
@@ -21,7 +21,7 @@ const AdminAuth = {
             } = await client.auth.getUser();
 
             if (userError || !user) {
-                window.location.href = '../login.html';
+                window.location.href = '/admin/login.html';
                 return null;
             }
 
@@ -32,12 +32,12 @@ const AdminAuth = {
 
             if (adminError) {
                 console.error('Erro ao verificar Super Admin:', adminError);
-                window.location.href = '../dashboard.html';
+                window.location.href = '/dashboard.html';
                 return null;
             }
 
             if (!isAdmin) {
-                window.location.href = '../dashboard.html';
+                window.location.href = '/dashboard.html';
                 return null;
             }
 
@@ -49,7 +49,7 @@ const AdminAuth = {
 
             console.error('Falha na autenticação administrativa:', error);
 
-            window.location.href = '../login.html';
+            window.location.href = '/admin/login.html';
 
             return null;
         }
@@ -93,6 +93,6 @@ const AdminAuth = {
             await client.auth.signOut();
         }
 
-        window.location.href = '../login.html';
+        window.location.href = '/admin/login.html';
     }
 };
