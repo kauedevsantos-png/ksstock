@@ -50,9 +50,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-
-/**
- * ============================================================
- * KS STOCK — CONTROLE DE ASSINATURA E LIMITES
- * ============================================================
- */

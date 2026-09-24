@@ -1103,7 +1103,7 @@ const Produtos = {
       getSupabase();
 
     if (!client) return;
-    
+
     const tbody =
       document.getElementById(
         'products-tbody'
@@ -1956,8 +1956,9 @@ const Produtos = {
 
       else {
 
-        const allowed =
-          await Subscription.canCreate('products');
+        // O limite deve ser verificado somente na criação.
+        // Carregar/listar produtos não consome o limite.
+        const allowed = await Subscription.canCreate('products');
 
         if (!allowed) {
           return;
@@ -1987,7 +1988,7 @@ const Produtos = {
             supplier_id,
             cost_price,
             sale_price,
-            stock_quantity: 0,
+            stock_quantity,
             minimum_stock,
             description
 
@@ -2003,26 +2004,42 @@ const Produtos = {
         }
 
 
-        // O saldo inicial é lançado pela RPC para manter auditoria.
-        if (stock_quantity > 0 && newProd) {
-          const { error: stockError } = await client.rpc(
-            'adjust_stock_atomic',
-            {
-              p_product_id: newProd.id,
-              p_type: 'entry',
-              p_quantity: stock_quantity,
-              p_reason: 'Estoque inicial cadastrado'
-            }
-          );
+        // Estoque inicial.
 
-          if (stockError) {
-            await client
-              .from('products')
-              .delete()
-              .eq('id', newProd.id);
+        if (
+          stock_quantity > 0 &&
+          newProd
+        ) {
 
-            throw stockError;
-          }
+          await client
+            .from('stock_movements')
+            .insert({
+
+              company_id,
+
+              product_id:
+                newProd.id,
+
+              user_id:
+                user.id,
+
+              type:
+                'entry',
+
+              quantity:
+                stock_quantity,
+
+              previous_quantity:
+                0,
+
+              new_quantity:
+                stock_quantity,
+
+              reason:
+                'Estoque inicial cadastrado'
+
+            });
+
         }
 
 

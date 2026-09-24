@@ -41,8 +41,13 @@ const Auth = {
 
     this.updateUserUI(profile);
 
-    if (typeof Subscription !== 'undefined' && Subscription.init) {
-      await Subscription.init();
+    // Verifica a assinatura antes de liberar qualquer página protegida.
+    // O Subscription.init() também bloqueia trials expirados, suspensos
+    // e cancelados.
+    const subscriptionAllowed = await Subscription.init();
+
+    if (!subscriptionAllowed) {
+      return null;
     }
 
     return { session, profile };
@@ -120,7 +125,7 @@ const Auth = {
           : 'Minha Empresa',
         company_plan: data.companies
           ? data.companies.plan
-          : 'Básico'
+          : 'Pro'
       };
 
       localStorage.setItem(
@@ -241,60 +246,16 @@ const Auth = {
       // mais recente seja carregado do banco
       this.clearSessionCache();
 
-      // Carrega o perfil. Após a confirmação do e-mail,
-      // o usuário pode ainda não ter sido provisionado.
-      let profile =
+      // Carrega perfil
+      const profile =
         await this.loadUserProfile(data.user.id);
 
       if (!profile) {
-        const metadata = data.user.user_metadata || {};
-        const companyName = String(metadata.company_name || '').trim();
-        const fullName = String(
-          metadata.full_name ||
-          metadata.name ||
-          email.split('@')[0]
-        ).trim();
-
-        if (!companyName || !fullName) {
-          UI.showToast(
-            'error',
-            'Cadastro incompleto',
-            'Não foi possível recuperar os dados da empresa.'
-          );
-          await client.auth.signOut();
-          return { success: false };
-        }
-
-        const { error: provisionError } = await client.rpc(
-          'register_company_and_admin',
-          {
-            p_company_name: companyName,
-            p_user_name: fullName,
-            p_user_email: email.trim()
-          }
-        );
-
-        if (provisionError) {
-          console.error('Erro ao provisionar empresa após confirmação:', provisionError);
-          UI.showToast(
-            'error',
-            'Erro ao configurar a empresa',
-            'A conta foi autenticada, mas a empresa não pôde ser configurada.'
-          );
-          return { success: false, error: provisionError };
-        }
-
-        this.clearSessionCache();
-        profile = await this.loadUserProfile(data.user.id);
-      }
-
-      if (!profile) {
         UI.showToast(
-          'error',
-          'Perfil não encontrado',
-          'Não foi possível carregar os dados da sua empresa.'
+          'warning',
+          'Aviso',
+          'Perfil em criação. Redirecionando...'
         );
-        return { success: false };
       }
 
       UI.showToast(
@@ -537,7 +498,7 @@ const Auth = {
           {
             redirectTo:
               window.location.origin +
-              '/recuperar-senha.html'
+              '/login.html'
           }
         );
 
