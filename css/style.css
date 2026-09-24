@@ -6,14 +6,14 @@
 
 :root {
   /* Cores Principais */
-  --color-primary: #4f46e5;         /* Indigo KS */
+  --color-primary: #4f46e5;
   --color-primary-hover: #4338ca;
   --color-primary-light: #eef2ff;
   --color-primary-glow: rgba(79, 70, 229, 0.15);
 
-  --color-bg-body: #f8fafc;        /* Cinza suave para fundo */
-  --color-bg-surface: #ffffff;     /* Cards e superfícies */
-  --color-bg-sidebar: #0f172a;     /* Slate escuro profissional */
+  --color-bg-body: #f8fafc;
+  --color-bg-surface: #ffffff;
+  --color-bg-sidebar: #0f172a;
   --color-bg-sidebar-hover: #1e293b;
   --color-bg-sidebar-active: #334155;
 
@@ -92,63 +92,15 @@ button, input, select, textarea {
 /* ==============================================================================
    LAYOUT GERAL (APP SHELL)
    ============================================================================== */
+
 .app-container {
   display: flex;
   min-height: 100vh;
   width: 100%;
 }
 
-/* ==============================================================================
-   KS STOCK — INTRO CINEMATOGRÁFICA
-   Ativada somente quando o app.js adicionar .ks-intro-active
-   ============================================================================= */
-.app-container.ks-intro-active::before {
-  content: "KS STOCK\A Controle Inteligente";
-  white-space: pre;
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: var(--color-bg-sidebar);
-  color: var(--color-text-inverted);
-  text-align: center;
-  font-size: clamp(3rem, 8vw, 7rem);
-  font-weight: 800;
-  letter-spacing: -0.07em;
-  line-height: 0.95;
-  pointer-events: none;
-  animation: ksNetflixIntro 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.app-container.ks-intro-active::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 99998;
-  pointer-events: none;
-  background: radial-gradient(circle at center, var(--color-primary-glow), transparent 42%);
-  opacity: 0;
-  animation: ksNetflixGlow 1.45s ease-out forwards;
-}
-
-@keyframes ksNetflixIntro {
-  0% { opacity: 1; transform: scale(1.08); filter: blur(10px); }
-  25% { opacity: 1; transform: scale(1.02); filter: blur(0); }
-  65% { opacity: 1; transform: scale(1); filter: blur(0); }
-  100% { opacity: 0; visibility: hidden; transform: scale(1.025); filter: blur(2px); }
-}
-
-@keyframes ksNetflixGlow {
-  0% { opacity: 0; transform: scale(0.7); }
-  30% { opacity: 0.45; transform: scale(1); }
-  65% { opacity: 0.18; }
-  100% { opacity: 0; visibility: hidden; transform: scale(1.15); }
-}
-
 /* SIDEBAR */
+
 .sidebar {
   width: var(--sidebar-width);
   background-color: var(--color-bg-sidebar);
@@ -302,33 +254,6 @@ button, input, select, textarea {
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
-/* Seleção da página atual: o app.js continua responsável por adicionar .active */
-.nav-item {
-  position: relative;
-  transition: background-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.nav-item:not(.active):hover {
-  transform: translateX(2px);
-}
-
-.nav-item.active:hover {
-  transform: none;
-}
-
-.nav-item.active::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 3px;
-  height: 68%;
-  border-radius: 0 4px 4px 0;
-  background: currentColor;
-  transform: translateY(-50%);
-  opacity: 0.9;
-}
-
 .nav-item svg {
   width: 19px;
   height: 19px;
@@ -411,6 +336,7 @@ button, input, select, textarea {
 }
 
 /* MAIN CONTENT WRAPPER */
+
 .main-wrapper {
   flex: 1;
   margin-left: var(--sidebar-width);
@@ -421,6 +347,7 @@ button, input, select, textarea {
 }
 
 /* TOP HEADER */
+
 .top-header {
   height: var(--header-height);
   background: var(--color-bg-surface);
@@ -474,6 +401,7 @@ button, input, select, textarea {
 }
 
 /* CONTENT CONTAINER */
+
 .content-body {
   padding: 2rem;
   flex: 1;
@@ -485,6 +413,7 @@ button, input, select, textarea {
 /* ==============================================================================
    COMPONENTES: BOTÕES
    ============================================================================== */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -498,14 +427,6 @@ button, input, select, textarea {
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-}
-
-.btn:active {
-  transform: translateY(0) scale(0.98);
 }
 
 .btn-primary {
@@ -574,6 +495,7 @@ button, input, select, textarea {
 /* ==============================================================================
    COMPONENTES: CARDS E MÉTRICAS (KPIS)
    ============================================================================== */
+
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -592,7 +514,6 @@ button, input, select, textarea {
 
 .card:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
 }
 
 .kpi-card {
@@ -664,6 +585,7 @@ button, input, select, textarea {
 /* ==============================================================================
    COMPONENTES: TABELAS E LISTAS
    ============================================================================== */
+
 .table-card {
   background: var(--color-bg-surface);
   border: 1px solid var(--border-color);
@@ -749,6 +671,7 @@ button, input, select, textarea {
 }
 
 /* BADGES */
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -771,32 +694,45 @@ button, input, select, textarea {
   color: #065f46;
   border: 1px solid var(--color-success-border);
 }
-.badge-success .badge-dot { background-color: var(--color-success); }
+
+.badge-success .badge-dot {
+  background-color: var(--color-success);
+}
 
 .badge-warning {
   background-color: var(--color-warning-bg);
   color: #92400e;
   border: 1px solid var(--color-warning-border);
 }
-.badge-warning .badge-dot { background-color: var(--color-warning); }
+
+.badge-warning .badge-dot {
+  background-color: var(--color-warning);
+}
 
 .badge-danger {
   background-color: var(--color-danger-bg);
   color: #991b1b;
   border: 1px solid var(--color-danger-border);
 }
-.badge-danger .badge-dot { background-color: var(--color-danger); }
+
+.badge-danger .badge-dot {
+  background-color: var(--color-danger);
+}
 
 .badge-neutral {
   background-color: #f1f5f9;
   color: #475569;
   border: 1px solid #e2e8f0;
 }
-.badge-neutral .badge-dot { background-color: #94a3b8; }
+
+.badge-neutral .badge-dot {
+  background-color: #94a3b8;
+}
 
 /* ==============================================================================
    COMPONENTES: FORMULÁRIOS
    ============================================================================== */
+
 .form-group {
   margin-bottom: 1.25rem;
   display: flex;
@@ -846,6 +782,7 @@ textarea.form-control {
 }
 
 /* CARD INFORMATIVO DE MARGEM DE LUCRO */
+
 .margin-calc-box {
   background: #f8fafc;
   border: 1px dashed var(--border-color);
@@ -871,6 +808,7 @@ textarea.form-control {
 /* ==============================================================================
    COMPONENTES: MODAIS
    ============================================================================== */
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -907,12 +845,6 @@ textarea.form-control {
 
 .modal-backdrop.active .modal-dialog {
   transform: scale(1) translateY(0);
-  animation: ksModalAppear 0.28s ease-out both;
-}
-
-@keyframes ksModalAppear {
-  from { opacity: 0; transform: scale(0.985) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .modal-dialog-lg {
@@ -970,6 +902,7 @@ textarea.form-control {
 /* ==============================================================================
    COMPONENTES: TOAST NOTIFICATIONS
    ============================================================================== */
+
 #toast-container {
   position: fixed;
   top: 1.5rem;
@@ -1002,6 +935,7 @@ textarea.form-control {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -1032,14 +966,26 @@ textarea.form-control {
   margin-top: 0.2rem;
 }
 
-.toast.success .toast-icon { color: var(--color-success); }
-.toast.error .toast-icon { color: var(--color-danger); }
-.toast.warning .toast-icon { color: var(--color-warning); }
-.toast.info .toast-icon { color: var(--color-info); }
+.toast.success .toast-icon {
+  color: var(--color-success);
+}
+
+.toast.error .toast-icon {
+  color: var(--color-danger);
+}
+
+.toast.warning .toast-icon {
+  color: var(--color-warning);
+}
+
+.toast.info .toast-icon {
+  color: var(--color-info);
+}
 
 /* ==============================================================================
    COMPONENTES: ESTADOS VAZIOS (EMPTY STATES) E SKELETON
    ============================================================================== */
+
 .empty-state {
   padding: 3.5rem 2rem;
   text-align: center;
@@ -1078,6 +1024,7 @@ textarea.form-control {
 }
 
 /* SKELETON LOADERS */
+
 .skeleton {
   background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
   background-size: 200% 100%;
@@ -1086,8 +1033,13 @@ textarea.form-control {
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .skeleton-text {
@@ -1109,6 +1061,7 @@ textarea.form-control {
 /* ==============================================================================
    TELAS PÚBLICAS DE AUTENTICAÇÃO (LOGIN / CADASTRO)
    ============================================================================== */
+
 .auth-wrapper {
   min-height: 100vh;
   display: flex;
@@ -1130,40 +1083,6 @@ textarea.form-control {
   background: radial-gradient(circle, rgba(79, 70, 229, 0.25) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
-  animation: ksAuthGlow 8s ease-in-out infinite alternate;
-}
-
-.auth-wrapper::after {
-  content: "KS STOCK\A Controle Inteligente";
-  white-space: pre;
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: var(--color-bg-sidebar);
-  color: var(--color-text-inverted);
-  text-align: center;
-  font-size: clamp(3rem, 8vw, 7rem);
-  font-weight: 800;
-  letter-spacing: -0.07em;
-  line-height: 0.95;
-  pointer-events: none;
-  animation: ksAuthIntro 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-@keyframes ksAuthIntro {
-  0% { opacity: 1; transform: scale(1.08); filter: blur(10px); }
-  25% { opacity: 1; transform: scale(1.02); filter: blur(0); }
-  65% { opacity: 1; transform: scale(1); filter: blur(0); }
-  100% { opacity: 0; visibility: hidden; transform: scale(1.025); filter: blur(2px); }
-}
-
-@keyframes ksAuthGlow {
-  from { transform: scale(1); opacity: 0.7; }
-  to { transform: scale(1.08); opacity: 1; }
 }
 
 .auth-box {
@@ -1239,6 +1158,7 @@ textarea.form-control {
 }
 
 /* CONFIGURAÇÃO SUPABASE PENDENTE AVISO */
+
 .config-banner {
   background: #fffbeb;
   border: 1px solid #fde68a;
@@ -1255,6 +1175,7 @@ textarea.form-control {
 /* ==============================================================================
    TELA: RELATÓRIOS E GRÁFICOS
    ============================================================================== */
+
 .chart-container {
   position: relative;
   height: 320px;
@@ -1297,7 +1218,9 @@ textarea.form-control {
 /* ==============================================================================
    RESPONSIVIDADE (MOBILE, TABLET, DESKTOP)
    ============================================================================== */
+
 @media (max-width: 992px) {
+
   .sidebar {
     transform: translateX(-100%);
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
@@ -1337,13 +1260,6 @@ textarea.form-control {
 }
 
 @media (max-width: 640px) {
-  .card:hover {
-    transform: none;
-  }
-
-  .nav-item:not(.active):hover {
-    transform: none;
-  }
 
   .kpi-grid {
     grid-template-columns: 1fr;
@@ -1373,17 +1289,8 @@ textarea.form-control {
 
 /* ===============================================================================
    KS STOCK — OTIMIZAÇÃO GLOBAL DE RESPONSIVIDADE E SCROLL
-   ===============================================================================
-   Regras complementares para:
-   - scroll interno de modais (produtos, vendas e demais formulários)
-   - rodapé de modal sempre acessível
-   - tabelas com rolagem horizontal no celular
-   - prevenção de overflow horizontal
-   - formulários adaptáveis a telas pequenas
-   - header, filtros e ações mais confortáveis no mobile
-   ============================================================================== */
+   =============================================================================== */
 
-/* Base de estabilidade do layout */
 html {
   overflow-x: hidden;
   overflow-y: auto;
@@ -1416,9 +1323,10 @@ a {
   touch-action: manipulation;
 }
 
-/* ============================================================================
+/* ============================================================================ 
    APP / CONTEÚDO
    ============================================================================ */
+
 .app-container,
 .main-wrapper,
 .content-body {
@@ -1429,9 +1337,10 @@ a {
   overflow-x: hidden;
 }
 
-/* ============================================================================
+/* ============================================================================ 
    HEADER
    ============================================================================ */
+
 .top-header {
   min-width: 0;
 }
@@ -1456,9 +1365,10 @@ a {
   white-space: nowrap;
 }
 
-/* ============================================================================
+/* ============================================================================ 
    TABELAS — desktop + celular
    ============================================================================ */
+
 .table-responsive {
   width: 100%;
   max-width: 100%;
@@ -1473,15 +1383,15 @@ a {
   min-width: 760px;
 }
 
-/* Permite que cards de tabela não criem overflow na página inteira */
 .table-card {
   min-width: 0;
   max-width: 100%;
 }
 
-/* ============================================================================
+/* ============================================================================ 
    FILTROS / BUSCA
    ============================================================================ */
+
 .table-header-bar,
 .table-filters,
 .table-search-box {
@@ -1505,9 +1415,10 @@ select.form-control {
   text-overflow: ellipsis;
 }
 
-/* ============================================================================
+/* ============================================================================ 
    FORMULÁRIOS
    ============================================================================ */
+
 .form-row {
   min-width: 0;
 }
@@ -1524,9 +1435,10 @@ textarea.form-control {
   max-width: 100%;
 }
 
-/* ============================================================================
+/* ============================================================================ 
    MODAIS — SCROLL CORRETO PARA TODOS OS MODAIS
    ============================================================================ */
+
 .modal-backdrop {
   overflow-y: auto;
   overflow-x: hidden;
@@ -1543,11 +1455,6 @@ textarea.form-control {
   flex: 0 1 auto;
 }
 
-/*
-   Qualquer formulário que seja o conteúdo principal de um modal
-   passa a participar do layout flex. Isso corrige não só produtos,
-   mas também vendas e futuros formulários do sistema.
-*/
 .modal-dialog > form,
 .modal-dialog > .modal-form,
 .modal-dialog > .form-modal {
@@ -1558,10 +1465,6 @@ textarea.form-control {
   overflow: hidden;
 }
 
-/*
-   Quando o modal possui um .modal-content intermediário,
-   a mesma lógica continua funcionando.
-*/
 .modal-dialog > .modal-content {
   display: flex;
   flex-direction: column;
@@ -1579,7 +1482,6 @@ textarea.form-control {
   overflow: hidden;
 }
 
-/* Corpo: SOMENTE esta região rola */
 .modal-body {
   flex: 1 1 auto;
   min-height: 0;
@@ -1591,7 +1493,6 @@ textarea.form-control {
   scrollbar-width: thin;
 }
 
-/* Rodapé nunca desaparece */
 .modal-footer {
   flex: 0 0 auto;
   flex-shrink: 0;
@@ -1605,7 +1506,6 @@ textarea.form-control {
   min-height: 64px;
 }
 
-/* Qualquer conteúdo de modal que use .modal-scroll também terá scroll */
 .modal-scroll,
 .modal-content-scroll {
   min-height: 0;
@@ -1615,9 +1515,10 @@ textarea.form-control {
   overscroll-behavior: contain;
 }
 
-/* ============================================================================
+/* ============================================================================ 
    MODAL DE PRODUTOS — ajuste específico
    ============================================================================ */
+
 #form-product {
   display: flex;
   flex-direction: column;
@@ -1634,9 +1535,10 @@ textarea.form-control {
   -webkit-overflow-scrolling: touch;
 }
 
-/* ============================================================================
+/* ============================================================================ 
    BOTÕES — área de toque confortável
    ============================================================================ */
+
 .btn {
   min-height: 38px;
   touch-action: manipulation;
@@ -1656,10 +1558,12 @@ textarea.form-control {
   min-height: 38px;
 }
 
-/* ============================================================================
+/* ============================================================================ 
    MOBILE — ATÉ 992PX
    ============================================================================ */
+
 @media (max-width: 992px) {
+
   .top-header {
     height: auto;
     min-height: var(--header-height);
@@ -1700,10 +1604,12 @@ textarea.form-control {
   }
 }
 
-/* ============================================================================
+/* ============================================================================ 
    MOBILE — ATÉ 640PX
    ============================================================================ */
+
 @media (max-width: 640px) {
+
   :root {
     --header-height: 62px;
   }
@@ -1765,6 +1671,7 @@ textarea.form-control {
   }
 
   /* KPI */
+
   .kpi-grid {
     grid-template-columns: 1fr;
     gap: 0.75rem;
@@ -1781,6 +1688,7 @@ textarea.form-control {
   }
 
   /* Tabelas */
+
   .table-card {
     border-radius: var(--radius-lg);
   }
@@ -1824,6 +1732,7 @@ textarea.form-control {
   }
 
   /* Formulários */
+
   .form-row {
     grid-template-columns: 1fr;
     gap: 0;
@@ -1858,6 +1767,7 @@ textarea.form-control {
   }
 
   /* Modais */
+
   .modal-backdrop {
     align-items: center;
     justify-content: center;
@@ -1901,6 +1811,7 @@ textarea.form-control {
   }
 
   /* Toast */
+
   #toast-container {
     top: 0.75rem;
     right: 0.75rem;
@@ -1914,10 +1825,12 @@ textarea.form-control {
   }
 }
 
-/* ============================================================================
+/* ============================================================================ 
    CELULARES MUITO PEQUENOS — ATÉ 380PX
    ============================================================================ */
+
 @media (max-width: 380px) {
+
   .content-body {
     padding: 0.65rem;
   }
@@ -1960,10 +1873,12 @@ textarea.form-control {
   }
 }
 
-/* ============================================================================
+/* ============================================================================ 
    CELULARES COM POUCA ALTURA
    ============================================================================ */
+
 @media (max-width: 640px) and (max-height: 700px) {
+
   .modal-dialog,
   .modal-dialog-lg {
     height: 97vh;
@@ -1988,10 +1903,12 @@ textarea.form-control {
   }
 }
 
-/* ============================================================================
+/* ============================================================================ 
    TOUCH / ACESSIBILIDADE
    ============================================================================ */
+
 @media (hover: none) and (pointer: coarse) {
+
   .btn,
   .nav-item,
   .btn-close-modal,
@@ -2015,10 +1932,12 @@ textarea.form-control {
   }
 }
 
-/* ============================================================================
+/* ============================================================================ 
    SAFE AREA — iPhone com notch / Dynamic Island / barra inferior
    ============================================================================ */
+
 @supports (padding: env(safe-area-inset-bottom)) {
+
   .modal-footer {
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   }
@@ -2028,10 +1947,12 @@ textarea.form-control {
   }
 }
 
-/* ============================================================================
+/* ============================================================================ 
    REDUÇÃO DE MOVIMENTO
    ============================================================================ */
+
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -2042,3 +1963,203 @@ textarea.form-control {
   }
 }
 
+
+/* ==============================================================================
+   KS STOCK — INTRO DO SISTEMA
+   SOMENTE NA ENTRADA DO SISTEMA
+   ============================================================================== */
+
+.ks-system-entry .app-container::before {
+  content: "KS STOCK\A Controle Inteligente";
+
+  white-space: pre;
+
+  position: fixed;
+  inset: 0;
+
+  z-index: 99999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2rem;
+
+  background: var(--color-bg-sidebar);
+
+  color: var(--color-text-inverted);
+
+  text-align: center;
+
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 800;
+  letter-spacing: -0.07em;
+  line-height: 0.95;
+
+  pointer-events: none;
+
+  animation:
+    ksSystemIntro
+    1.55s
+    cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+}
+
+.ks-system-entry .app-container::after {
+  content: "";
+
+  position: fixed;
+  inset: 0;
+
+  z-index: 99998;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at center,
+      var(--color-primary-glow),
+      transparent 42%
+    );
+
+  opacity: 0;
+
+  animation:
+    ksSystemIntroGlow
+    1.55s
+    ease-out
+    forwards;
+}
+
+/* ==============================================================================
+   ANIMAÇÃO DA INTRO
+   ============================================================================== */
+
+@keyframes ksSystemIntro {
+
+  0% {
+    opacity: 1;
+    transform: scale(1.045);
+    filter: blur(7px);
+  }
+
+  20% {
+    opacity: 1;
+    transform: scale(1.015);
+    filter: blur(0);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.01);
+    filter: blur(1px);
+  }
+
+}
+
+@keyframes ksSystemIntroGlow {
+
+  0% {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+
+  25% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+
+  60% {
+    opacity: 0.12;
+    transform: scale(1.04);
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.1);
+  }
+
+}
+
+/* ==============================================================================
+   INTRO — CELULAR
+   ============================================================================== */
+
+@media (max-width: 640px) {
+
+  .ks-system-entry .app-container::before {
+    font-size: clamp(2rem, 11vw, 3.8rem);
+    letter-spacing: -0.055em;
+    line-height: 1;
+    padding: 1.25rem;
+  }
+
+  .ks-system-entry .app-container::after {
+    background:
+      radial-gradient(
+        circle at center,
+        var(--color-primary-glow),
+        transparent 55%
+      );
+  }
+
+}
+
+/* ==============================================================================
+   INTRO — CELULARES PEQUENOS
+   ============================================================================== */
+
+@media (max-width: 380px) {
+
+  .ks-system-entry .app-container::before {
+    font-size: clamp(1.75rem, 11vw, 3rem);
+    letter-spacing: -0.045em;
+    padding: 1rem;
+  }
+
+}
+
+/* ==============================================================================
+   INTRO — TELAS BAIXAS
+   ============================================================================== */
+
+@media (max-width: 640px) and (max-height: 700px) {
+
+  .ks-system-entry .app-container::before {
+    font-size: 2.2rem;
+    line-height: 1.05;
+  }
+
+}
+
+/* ==============================================================================
+   GARANTIA — SEM INTRO FORA DA ENTRADA
+   ============================================================================== */
+
+body:not(.ks-system-entry) .app-container::before,
+body:not(.ks-system-entry) .app-container::after {
+  display: none !important;
+}
+
+/* ==============================================================================
+   REDUÇÃO DE MOVIMENTO — INTRO
+   ============================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ks-system-entry .app-container::before,
+  .ks-system-entry .app-container::after {
+    animation: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+}
