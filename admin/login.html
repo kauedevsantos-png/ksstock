@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
 
@@ -19,6 +20,7 @@
 
         body {
             min-height: 100vh;
+
             font-family:
                 Inter,
                 system-ui,
@@ -391,9 +393,13 @@
 
 
             <div class="footer">
+
                 <strong>KS Stock</strong>
+
                 <br>
+
                 Área restrita ao administrador da plataforma.
+
             </div>
 
         </section>
@@ -401,43 +407,35 @@
     </main>
 
 
-    <!-- SUPABASE / KS STOCK -->
+    <!-- =========================================================
+         KS STOCK — SCRIPTS
+         ORDEM IMPORTANTE
+         ========================================================= -->
 
-<!-- =========================================================
-     KS STOCK — SCRIPTS
-     ========================================================= -->
+    <!-- 1. Biblioteca oficial do Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Biblioteca oficial do Supabase — DEVE vir primeiro -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- 2. Configuração do projeto -->
+    <script src="../js/config.js"></script>
 
-<!-- Configuração do projeto -->
-<script src="../js/config.js"></script>
+    <!-- 3. Cliente Supabase -->
+    <script src="../js/supabase-client.js"></script>
 
-<!-- Cliente Supabase do KS Stock -->
-<script src="../js/supabase-client.js"></script>
+    <!-- 4. Interface do KS Stock
+         DEVE vir antes do auth.js -->
+    <script src="../js/ui.js"></script>
 
-<!-- Autenticação -->
-<script src="../js/auth.js"></script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', async () => {
-    console.log('KS Stock Admin: iniciando...');
-
-    const client = getSupabase();
-
-    if (!client) {
-      console.error('KS Stock Admin: Supabase não foi inicializado.');
-      return;
-    }
-
-    console.log('KS Stock Admin: Supabase carregado com sucesso.');
-
-    // resto do código do login...
-  });
-</script>
+    <!-- 5. Autenticação -->
+    <script src="../js/auth.js"></script>
 
 
     <script>
+
+        /*
+         * =========================================================
+         * ELEMENTOS
+         * =========================================================
+         */
 
         const form =
             document.getElementById(
@@ -476,7 +474,9 @@
 
 
         /*
+         * =========================================================
          * MOSTRAR / ESCONDER SENHA
+         * =========================================================
          */
 
         togglePassword.addEventListener(
@@ -494,6 +494,11 @@
                     togglePassword.textContent =
                         '🙈';
 
+                    togglePassword.setAttribute(
+                        'aria-label',
+                        'Ocultar senha'
+                    );
+
                 } else {
 
                     passwordInput.type =
@@ -502,6 +507,11 @@
                     togglePassword.textContent =
                         '👁';
 
+                    togglePassword.setAttribute(
+                        'aria-label',
+                        'Mostrar senha'
+                    );
+
                 }
 
             }
@@ -509,7 +519,9 @@
 
 
         /*
-         * MOSTRA ERRO
+         * =========================================================
+         * MOSTRAR ERRO
+         * =========================================================
          */
 
         function showError(message) {
@@ -525,7 +537,9 @@
 
 
         /*
-         * ESCONDE ERRO
+         * =========================================================
+         * ESCONDER ERRO
+         * =========================================================
          */
 
         function hideError() {
@@ -540,7 +554,9 @@
 
 
         /*
+         * =========================================================
          * ESTADO DE CARREGAMENTO
+         * =========================================================
          */
 
         function setLoading(value) {
@@ -562,7 +578,9 @@
 
 
         /*
-         * VERIFICA ACESSO
+         * =========================================================
+         * VERIFICA SE O USUÁRIO É SUPER ADMIN
+         * =========================================================
          */
 
         async function checkAdminAccess() {
@@ -584,8 +602,15 @@
                 }
 
 
+                console.log(
+                    'KS Stock Admin: Supabase carregado com sucesso.'
+                );
+
+
                 /*
-                 * USUÁRIO PRECISA ESTAR LOGADO
+                 * -------------------------------------------------
+                 * USUÁRIO PRECISA ESTAR AUTENTICADO
+                 * -------------------------------------------------
                  */
 
                 const user =
@@ -600,7 +625,9 @@
 
 
                 /*
+                 * -------------------------------------------------
                  * VERIFICA SUPER ADMIN
+                 * -------------------------------------------------
                  */
 
                 const {
@@ -612,13 +639,27 @@
                     );
 
 
-                if (
-                    error ||
-                    isAdmin !== true
-                ) {
+                if (error) {
 
-                    window.location.href =
-                        '../index.html';
+                    console.error(
+                        'Erro ao verificar administrador:',
+                        error
+                    );
+
+                    showError(
+                        'Não foi possível verificar seu acesso administrativo.'
+                    );
+
+                    return;
+
+                }
+
+
+                if (isAdmin !== true) {
+
+                    showError(
+                        'Você não possui permissão para acessar o painel administrativo.'
+                    );
 
                     return;
 
@@ -626,8 +667,10 @@
 
 
                 /*
+                 * -------------------------------------------------
                  * SE JÁ AUTENTICOU O PAINEL
                  * NESTA SESSÃO, ENTRA DIRETO
+                 * -------------------------------------------------
                  */
 
                 const alreadyAuthenticated =
@@ -665,7 +708,9 @@
 
 
         /*
+         * =========================================================
          * LOGIN ADMINISTRATIVO
+         * =========================================================
          */
 
         form.addEventListener(
@@ -702,8 +747,23 @@
                         getSupabase();
 
 
+                    if (!client) {
+
+                        showError(
+                            'Não foi possível conectar ao sistema.'
+                        );
+
+                        setLoading(false);
+
+                        return;
+
+                    }
+
+
                     /*
+                     * -------------------------------------------------
                      * CONFIRMA SUPER ADMIN
+                     * -------------------------------------------------
                      */
 
                     const {
@@ -715,10 +775,25 @@
                         );
 
 
-                    if (
-                        adminError ||
-                        isAdmin !== true
-                    ) {
+                    if (adminError) {
+
+                        console.error(
+                            'Erro ao verificar administrador:',
+                            adminError
+                        );
+
+                        showError(
+                            'Não foi possível verificar seu acesso administrativo.'
+                        );
+
+                        setLoading(false);
+
+                        return;
+
+                    }
+
+
+                    if (isAdmin !== true) {
 
                         showError(
                             'Você não possui permissão para acessar o painel administrativo.'
@@ -732,7 +807,9 @@
 
 
                     /*
+                     * -------------------------------------------------
                      * VALIDA A SENHA NO BANCO
+                     * -------------------------------------------------
                      */
 
                     const {
@@ -766,6 +843,12 @@
                     }
 
 
+                    /*
+                     * -------------------------------------------------
+                     * SENHA INCORRETA
+                     * -------------------------------------------------
+                     */
+
                     if (valid !== true) {
 
                         showError(
@@ -784,7 +867,9 @@
 
 
                     /*
+                     * -------------------------------------------------
                      * ACESSO LIBERADO
+                     * -------------------------------------------------
                      */
 
                     sessionStorage.setItem(
@@ -816,7 +901,9 @@
 
 
         /*
+         * =========================================================
          * ENTER PARA ENTRAR
+         * =========================================================
          */
 
         passwordInput.addEventListener(
@@ -836,12 +923,26 @@
 
 
         /*
+         * =========================================================
          * INICIA
+         * =========================================================
          */
 
-        checkAdminAccess();
+        document.addEventListener(
+            'DOMContentLoaded',
+            () => {
+
+                console.log(
+                    'KS Stock Admin: iniciando...'
+                );
+
+                checkAdminAccess();
+
+            }
+        );
 
     </script>
 
 </body>
+
 </html>
