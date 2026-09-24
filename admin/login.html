@@ -1,1 +1,818 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
 
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>KS Stock — Acesso Administrativo</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top,
+                    #1e293b 0%,
+                    #0f172a 45%,
+                    #020617 100%
+                );
+
+            color: #f8fafc;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 24px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 430px;
+        }
+
+        .login-card {
+            background: rgba(15, 23, 42, 0.92);
+
+            border: 1px solid rgba(148, 163, 184, 0.16);
+
+            border-radius: 24px;
+
+            padding: 40px 34px;
+
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.45);
+
+            backdrop-filter: blur(18px);
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 34px;
+        }
+
+        .brand-icon {
+            width: 68px;
+            height: 68px;
+
+            margin: 0 auto 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #4f46e5
+                );
+
+            font-size: 30px;
+
+            box-shadow:
+                0 12px 35px rgba(37, 99, 235, 0.35);
+        }
+
+        .brand h1 {
+            font-size: 25px;
+            font-weight: 750;
+
+            letter-spacing: -0.5px;
+
+            margin-bottom: 8px;
+        }
+
+        .brand p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        .field label {
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            color: #cbd5e1;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            width: 100%;
+
+            height: 52px;
+
+            padding: 0 50px 0 16px;
+
+            border-radius: 12px;
+
+            border: 1px solid #334155;
+
+            outline: none;
+
+            background: #020617;
+
+            color: #f8fafc;
+
+            font-size: 15px;
+
+            transition: 0.2s ease;
+        }
+
+        .password-wrapper input::placeholder {
+            color: #64748b;
+        }
+
+        .password-wrapper input:focus {
+            border-color: #3b82f6;
+
+            box-shadow:
+                0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .toggle-password {
+            position: absolute;
+
+            right: 14px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            border: none;
+
+            background: transparent;
+
+            color: #64748b;
+
+            cursor: pointer;
+
+            font-size: 18px;
+
+            padding: 5px;
+        }
+
+        .toggle-password:hover {
+            color: #cbd5e1;
+        }
+
+        .error {
+            display: none;
+
+            margin-bottom: 16px;
+
+            padding: 12px 14px;
+
+            border-radius: 10px;
+
+            background: rgba(239, 68, 68, 0.10);
+
+            border: 1px solid rgba(239, 68, 68, 0.25);
+
+            color: #fca5a5;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .login-button {
+            width: 100%;
+
+            height: 52px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #4f46e5
+                );
+
+            color: white;
+
+            font-size: 15px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                opacity 0.2s ease;
+
+            box-shadow:
+                0 10px 25px rgba(37, 99, 235, 0.25);
+        }
+
+        .login-button:hover {
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 14px 30px rgba(37, 99, 235, 0.35);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .footer {
+            text-align: center;
+
+            margin-top: 25px;
+
+            color: #64748b;
+
+            font-size: 12px;
+        }
+
+        .footer strong {
+            color: #94a3b8;
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .loading.show {
+            display: inline;
+        }
+
+        .button-text.hide {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+
+            body {
+                padding: 16px;
+            }
+
+            .login-card {
+                padding: 32px 22px;
+                border-radius: 20px;
+            }
+
+            .brand h1 {
+                font-size: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="login-container">
+
+        <section class="login-card">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    🔐
+                </div>
+
+                <h1>
+                    Acesso Administrativo
+                </h1>
+
+                <p>
+                    KS Stock — Painel do administrador
+                </p>
+
+            </div>
+
+
+            <div
+                id="admin-error"
+                class="error"
+                role="alert"
+            ></div>
+
+
+            <form id="admin-login-form">
+
+                <div class="field">
+
+                    <label for="admin-password">
+                        Senha administrativa
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="admin-password"
+                            placeholder="Digite sua senha"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            id="toggle-password"
+                            aria-label="Mostrar senha"
+                        >
+                            👁
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="login-button"
+                    id="login-button"
+                >
+
+                    <span
+                        class="button-text"
+                        id="button-text"
+                    >
+                        Entrar no painel
+                    </span>
+
+                    <span
+                        class="loading"
+                        id="loading"
+                    >
+                        Verificando...
+                    </span>
+
+                </button>
+
+            </form>
+
+
+            <div class="footer">
+                <strong>KS Stock</strong>
+                <br>
+                Área restrita ao administrador da plataforma.
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- SUPABASE / KS STOCK -->
+
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/auth.js"></script>
+
+
+    <script>
+
+        const form =
+            document.getElementById(
+                'admin-login-form'
+            );
+
+        const passwordInput =
+            document.getElementById(
+                'admin-password'
+            );
+
+        const togglePassword =
+            document.getElementById(
+                'toggle-password'
+            );
+
+        const errorBox =
+            document.getElementById(
+                'admin-error'
+            );
+
+        const loginButton =
+            document.getElementById(
+                'login-button'
+            );
+
+        const buttonText =
+            document.getElementById(
+                'button-text'
+            );
+
+        const loading =
+            document.getElementById(
+                'loading'
+            );
+
+
+        /*
+         * MOSTRAR / ESCONDER SENHA
+         */
+
+        togglePassword.addEventListener(
+            'click',
+            () => {
+
+                if (
+                    passwordInput.type ===
+                    'password'
+                ) {
+
+                    passwordInput.type =
+                        'text';
+
+                    togglePassword.textContent =
+                        '🙈';
+
+                } else {
+
+                    passwordInput.type =
+                        'password';
+
+                    togglePassword.textContent =
+                        '👁';
+
+                }
+
+            }
+        );
+
+
+        /*
+         * MOSTRA ERRO
+         */
+
+        function showError(message) {
+
+            errorBox.textContent =
+                message;
+
+            errorBox.classList.add(
+                'show'
+            );
+
+        }
+
+
+        /*
+         * ESCONDE ERRO
+         */
+
+        function hideError() {
+
+            errorBox.textContent = '';
+
+            errorBox.classList.remove(
+                'show'
+            );
+
+        }
+
+
+        /*
+         * ESTADO DE CARREGAMENTO
+         */
+
+        function setLoading(value) {
+
+            loginButton.disabled =
+                value;
+
+            buttonText.classList.toggle(
+                'hide',
+                value
+            );
+
+            loading.classList.toggle(
+                'show',
+                value
+            );
+
+        }
+
+
+        /*
+         * VERIFICA ACESSO
+         */
+
+        async function checkAdminAccess() {
+
+            try {
+
+                const client =
+                    getSupabase();
+
+
+                if (!client) {
+
+                    showError(
+                        'Não foi possível conectar ao sistema.'
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                 * USUÁRIO PRECISA ESTAR LOGADO
+                 */
+
+                const user =
+                    await Auth.requireAuth();
+
+
+                if (!user) {
+
+                    return;
+
+                }
+
+
+                /*
+                 * VERIFICA SUPER ADMIN
+                 */
+
+                const {
+                    data: isAdmin,
+                    error
+                } =
+                    await client.rpc(
+                        'is_platform_admin'
+                    );
+
+
+                if (
+                    error ||
+                    isAdmin !== true
+                ) {
+
+                    window.location.href =
+                        '../index.html';
+
+                    return;
+
+                }
+
+
+                /*
+                 * SE JÁ AUTENTICOU O PAINEL
+                 * NESTA SESSÃO, ENTRA DIRETO
+                 */
+
+                const alreadyAuthenticated =
+                    sessionStorage.getItem(
+                        'ks_admin_authenticated'
+                    );
+
+
+                if (
+                    alreadyAuthenticated ===
+                    'true'
+                ) {
+
+                    window.location.href =
+                        './index.html';
+
+                    return;
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    'Erro ao verificar acesso:',
+                    error
+                );
+
+                showError(
+                    'Não foi possível verificar seu acesso.'
+                );
+
+            }
+
+        }
+
+
+        /*
+         * LOGIN ADMINISTRATIVO
+         */
+
+        form.addEventListener(
+            'submit',
+            async (event) => {
+
+                event.preventDefault();
+
+                hideError();
+
+                const password =
+                    passwordInput.value.trim();
+
+
+                if (!password) {
+
+                    showError(
+                        'Digite a senha administrativa.'
+                    );
+
+                    passwordInput.focus();
+
+                    return;
+
+                }
+
+
+                setLoading(true);
+
+
+                try {
+
+                    const client =
+                        getSupabase();
+
+
+                    /*
+                     * CONFIRMA SUPER ADMIN
+                     */
+
+                    const {
+                        data: isAdmin,
+                        error: adminError
+                    } =
+                        await client.rpc(
+                            'is_platform_admin'
+                        );
+
+
+                    if (
+                        adminError ||
+                        isAdmin !== true
+                    ) {
+
+                        showError(
+                            'Você não possui permissão para acessar o painel administrativo.'
+                        );
+
+                        setLoading(false);
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * VALIDA A SENHA NO BANCO
+                     */
+
+                    const {
+                        data: valid,
+                        error
+                    } =
+                        await client.rpc(
+                            'verify_admin_password',
+                            {
+                                p_password:
+                                    password
+                            }
+                        );
+
+
+                    if (error) {
+
+                        console.error(
+                            'Erro ao validar senha:',
+                            error
+                        );
+
+                        showError(
+                            'Não foi possível validar a senha. Tente novamente.'
+                        );
+
+                        setLoading(false);
+
+                        return;
+
+                    }
+
+
+                    if (valid !== true) {
+
+                        showError(
+                            'Senha administrativa incorreta.'
+                        );
+
+                        passwordInput.value = '';
+
+                        passwordInput.focus();
+
+                        setLoading(false);
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * ACESSO LIBERADO
+                     */
+
+                    sessionStorage.setItem(
+                        'ks_admin_authenticated',
+                        'true'
+                    );
+
+
+                    window.location.href =
+                        './index.html';
+
+                } catch (error) {
+
+                    console.error(
+                        'Erro no login administrativo:',
+                        error
+                    );
+
+                    showError(
+                        'Ocorreu um erro ao entrar no painel.'
+                    );
+
+                    setLoading(false);
+
+                }
+
+            }
+        );
+
+
+        /*
+         * ENTER PARA ENTRAR
+         */
+
+        passwordInput.addEventListener(
+            'keydown',
+            (event) => {
+
+                if (
+                    event.key === 'Enter'
+                ) {
+
+                    form.requestSubmit();
+
+                }
+
+            }
+        );
+
+
+        /*
+         * INICIA
+         */
+
+        checkAdminAccess();
+
+    </script>
+
+</body>
+</html>
