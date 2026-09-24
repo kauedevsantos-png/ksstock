@@ -102,3 +102,8 @@ Mesmo que um usuário mal-intencionado manipule as requisições no navegador, o
 ---
 
 Feito com excelência por **Kaue Santos / KS Stock**.
+
+
+## Produção / Segurança
+
+Execute `supabase/hardening.sql` no SQL Editor depois das migrações de planos/assinaturas.
