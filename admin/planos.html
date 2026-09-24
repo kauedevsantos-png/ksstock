@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Planos — KS Stock</title>
+
+    <link rel="stylesheet" href="css/admin.css">
+
+    <style>
+
+        .plans-grid {
+            display:grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+            gap:20px;
+        }
+
+        .plan-card {
+            background:white;
+            border:1px solid #e2e8f0;
+            border-radius:16px;
+            overflow:hidden;
+            box-shadow:
+                0 1px 3px rgba(15,23,42,.07);
+        }
+
+        .plan-card-head {
+            padding:23px;
+            border-bottom:1px solid #e2e8f0;
+        }
+
+        .plan-card-head h2 {
+            font-size:17px;
+        }
+
+        .plan-price {
+            margin-top:12px;
+            font-size:27px;
+            font-weight:800;
+            letter-spacing:-.04em;
+        }
+
+        .plan-price span {
+            font-size:11px;
+            color:#64748b;
+            font-weight:500;
+        }
+
+        .plan-card-body {
+            padding:20px 23px;
+        }
+
+        .plan-limit {
+            display:flex;
+            justify-content:space-between;
+            padding:10px 0;
+            border-bottom:1px solid #f1f5f9;
+            font-size:11px;
+        }
+
+        .plan-limit:last-child {
+            border-bottom:0;
+        }
+
+        .plan-limit span {
+            color:#64748b;
+        }
+
+        .plan-limit strong {
+            color:#0f172a;
+        }
+
+        .plan-color {
+            width:9px;
+            height:9px;
+            display:inline-block;
+            border-radius:50%;
+            margin-right:6px;
+        }
+
+        @media(max-width:900px) {
+            .plans-grid {
+                grid-template-columns:1fr;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="admin-app">
+
+    <div
+        class="admin-overlay"
+        id="admin-overlay"
+    ></div>
+
+
+    <aside
+        class="admin-sidebar"
+        id="admin-sidebar"
+    >
+
+        <div class="admin-brand">
+
+            <div class="admin-brand-icon">
+                KS
+            </div>
+
+            <div>
+                <strong>KS Stock</strong>
+                <span>Super Admin</span>
+            </div>
+
+        </div>
+
+
+        <div class="admin-profile-card">
+
+            <div
+                class="admin-avatar"
+                id="admin-avatar"
+            >
+                KS
+            </div>
+
+            <div>
+
+                <strong id="admin-name">
+                    Administrador
+                </strong>
+
+                <span>
+                    Administrador da plataforma
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="admin-nav">
+
+            <div class="admin-nav-label">
+                Plataforma
+            </div>
+
+            <a
+                href="index.html"
+                class="admin-nav-item"
+            >
+                <span class="nav-icon">⌂</span>
+                Dashboard
+            </a>
+
+            <a
+                href="empresas.html"
+                class="admin-nav-item"
+            >
+                <span class="nav-icon">▦</span>
+                Empresas
+            </a>
+
+            <a
+                href="planos.html"
+                class="admin-nav-item active"
+            >
+                <span class="nav-icon">◆</span>
+                Planos
+            </a>
+
+        </nav>
+
+
+        <div class="admin-sidebar-bottom">
+
+            <a
+                href="../dashboard.html"
+                class="admin-back"
+            >
+                ← Voltar para o KS Stock
+            </a>
+
+            <button
+                class="admin-logout"
+                id="btn-logout"
+            >
+                Sair da conta
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <button
+                class="mobile-menu-button"
+                id="mobile-menu-button"
+            >
+                ☰
+            </button>
+
+            <div>
+
+                <div class="admin-breadcrumb">
+                    KS Stock / Planos
+                </div>
+
+                <h1>Planos</h1>
+
+                <p>
+                    Visualização dos planos comerciais da plataforma.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <section class="admin-content">
+
+            <div
+                id="plans-grid"
+                class="plans-grid"
+            >
+
+                <div class="admin-card" style="padding:30px;">
+                    Carregando planos...
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../js/config.js"></script>
+<script src="../js/supabase-client.js"></script>
+
+<script src="js/admin-auth.js"></script>
+<script src="js/planos.js"></script>
+
+</body>
+</html>

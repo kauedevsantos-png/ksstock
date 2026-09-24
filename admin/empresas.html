@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Empresas — KS Stock</title>
+
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body>
+
+<div class="admin-app">
+
+    <div class="admin-overlay" id="admin-overlay"></div>
+
+    <aside class="admin-sidebar" id="admin-sidebar">
+
+        <div class="admin-brand">
+            <div class="admin-brand-icon">KS</div>
+
+            <div>
+                <strong>KS Stock</strong>
+                <span>Super Admin</span>
+            </div>
+        </div>
+
+        <div class="admin-profile-card">
+            <div class="admin-avatar" id="admin-avatar">KS</div>
+
+            <div>
+                <strong id="admin-name">Administrador</strong>
+                <span>Administrador da plataforma</span>
+            </div>
+        </div>
+
+        <nav class="admin-nav">
+
+            <div class="admin-nav-label">
+                Plataforma
+            </div>
+
+            <a href="index.html" class="admin-nav-item">
+                <span class="nav-icon">⌂</span>
+                Dashboard
+            </a>
+
+            <a href="empresas.html" class="admin-nav-item active">
+                <span class="nav-icon">▦</span>
+                Empresas
+            </a>
+
+            <a href="planos.html" class="admin-nav-item">
+                <span class="nav-icon">◆</span>
+                Planos
+            </a>
+
+        </nav>
+
+        <div class="admin-sidebar-bottom">
+
+            <a href="../dashboard.html" class="admin-back">
+                ← Voltar para o KS Stock
+            </a>
+
+            <button
+                class="admin-logout"
+                id="btn-logout"
+            >
+                Sair da conta
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <button
+                class="mobile-menu-button"
+                id="mobile-menu-button"
+            >
+                ☰
+            </button>
+
+            <div>
+
+                <div class="admin-breadcrumb">
+                    KS Stock / Empresas
+                </div>
+
+                <h1>Empresas</h1>
+
+                <p>
+                    Gerencie os clientes da plataforma.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <section class="admin-content">
+
+            <section class="admin-card">
+
+                <div class="admin-card-header">
+
+                    <div>
+                        <h2>Empresas cadastradas</h2>
+                        <p id="companies-count">
+                            Carregando...
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div style="padding:20px;">
+
+                    <input
+                        type="search"
+                        id="company-search"
+                        placeholder="Pesquisar empresa, e-mail ou telefone..."
+                        style="
+                            width:100%;
+                            max-width:500px;
+                            padding:11px 13px;
+                            border:1px solid #e2e8f0;
+                            border-radius:9px;
+                            outline:none;
+                            font-size:12px;
+                        "
+                    >
+
+                </div>
+
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+                            <tr>
+                                <th>Empresa</th>
+                                <th>Plano</th>
+                                <th>Status</th>
+                                <th>Trial</th>
+                                <th>Cadastro</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="companies-table">
+
+                            <tr>
+                                <td
+                                    colspan="6"
+                                    class="table-loading"
+                                >
+                                    Carregando empresas...
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../js/config.js"></script>
+<script src="../js/supabase-client.js"></script>
+
+<script src="js/admin-auth.js"></script>
+<script src="js/empresas.js"></script>
+
+</body>
+</html>

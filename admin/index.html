@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Super Admin — KS Stock</title>
+
+    <link rel="stylesheet" href="css/admin.css">
+
+    <link
+        rel="icon"
+        type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%234f46e5'/><text x='50%25' y='68%25' font-size='14' font-weight='bold' text-anchor='middle' fill='white'>KS</text></svg>"
+    >
+</head>
+
+<body>
+
+<div class="admin-app">
+
+    <div class="admin-overlay" id="admin-overlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+
+        <div class="admin-brand">
+            <div class="admin-brand-icon">KS</div>
+
+            <div>
+                <strong>KS Stock</strong>
+                <span>Super Admin</span>
+            </div>
+        </div>
+
+        <div class="admin-profile-card">
+            <div class="admin-avatar" id="admin-avatar">KS</div>
+
+            <div>
+                <strong id="admin-name">Kaue Santos</strong>
+                <span>Administrador da plataforma</span>
+            </div>
+        </div>
+
+        <nav class="admin-nav">
+
+            <div class="admin-nav-label">
+                Plataforma
+            </div>
+
+            <a href="index.html" class="admin-nav-item active">
+                <span class="nav-icon">⌂</span>
+                Dashboard
+            </a>
+
+            <a href="empresas.html" class="admin-nav-item">
+                <span class="nav-icon">▦</span>
+                Empresas
+            </a>
+
+            <a href="planos.html" class="admin-nav-item">
+                <span class="nav-icon">◆</span>
+                Planos
+            </a>
+
+        </nav>
+
+        <div class="admin-sidebar-bottom">
+
+            <a href="../dashboard.html" class="admin-back">
+                ← Voltar para o KS Stock
+            </a>
+
+            <button
+                type="button"
+                class="admin-logout"
+                id="btn-logout"
+            >
+                Sair da conta
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <button
+                type="button"
+                class="mobile-menu-button"
+                id="mobile-menu-button"
+            >
+                ☰
+            </button>
+
+            <div>
+                <div class="admin-breadcrumb">
+                    KS Stock / Administração
+                </div>
+
+                <h1>Visão geral</h1>
+
+                <p>
+                    Controle central da plataforma KS Stock.
+                </p>
+            </div>
+
+            <div class="admin-header-right">
+
+                <div class="admin-status">
+                    <span></span>
+                    Sistema operacional
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="admin-content">
+
+            <!-- KPI -->
+            <div class="admin-kpi-grid">
+
+                <div class="admin-kpi-card">
+                    <div class="kpi-top">
+                        <span>Total de empresas</span>
+                        <div class="kpi-icon purple">▦</div>
+                    </div>
+
+                    <strong id="stat-total">—</strong>
+
+                    <small>
+                        Empresas cadastradas
+                    </small>
+                </div>
+
+
+                <div class="admin-kpi-card">
+                    <div class="kpi-top">
+                        <span>Em período de teste</span>
+                        <div class="kpi-icon blue">◷</div>
+                    </div>
+
+                    <strong id="stat-trial">—</strong>
+
+                    <small>
+                        Trials ativos
+                    </small>
+                </div>
+
+
+                <div class="admin-kpi-card">
+                    <div class="kpi-top">
+                        <span>Assinaturas ativas</span>
+                        <div class="kpi-icon green">✓</div>
+                    </div>
+
+                    <strong id="stat-active">—</strong>
+
+                    <small>
+                        Clientes ativos
+                    </small>
+                </div>
+
+
+                <div class="admin-kpi-card">
+                    <div class="kpi-top">
+                        <span>Trials expirados</span>
+                        <div class="kpi-icon orange">!</div>
+                    </div>
+
+                    <strong id="stat-expired">—</strong>
+
+                    <small>
+                        Precisam de atenção
+                    </small>
+                </div>
+
+            </div>
+
+
+            <!-- QUICK ACTIONS -->
+            <div class="admin-section-grid">
+
+                <section class="admin-card">
+
+                    <div class="admin-card-header">
+                        <div>
+                            <h2>Ações rápidas</h2>
+                            <p>Gerencie sua plataforma.</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+
+                        <a href="empresas.html" class="quick-action">
+                            <div class="quick-action-icon">▦</div>
+                            <div>
+                                <strong>Gerenciar empresas</strong>
+                                <span>Visualizar clientes e status</span>
+                            </div>
+                        </a>
+
+                        <a href="planos.html" class="quick-action">
+                            <div class="quick-action-icon">◆</div>
+                            <div>
+                                <strong>Planos e limites</strong>
+                                <span>Visualizar regras comerciais</span>
+                            </div>
+                        </a>
+
+                    </div>
+
+                </section>
+
+
+                <!-- PLAN DISTRIBUTION -->
+                <section class="admin-card">
+
+                    <div class="admin-card-header">
+                        <div>
+                            <h2>Distribuição por plano</h2>
+                            <p>Clientes atualmente cadastrados.</p>
+                        </div>
+                    </div>
+
+                    <div id="plan-distribution" class="plan-distribution">
+                        <div class="loading-line"></div>
+                        <div class="loading-line"></div>
+                        <div class="loading-line"></div>
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <!-- RECENT COMPANIES -->
+            <section class="admin-card">
+
+                <div class="admin-card-header">
+
+                    <div>
+                        <h2>Empresas recentes</h2>
+                        <p>Últimas empresas cadastradas na plataforma.</p>
+                    </div>
+
+                    <a href="empresas.html" class="admin-outline-button">
+                        Ver todas
+                    </a>
+
+                </div>
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+                            <tr>
+                                <th>Empresa</th>
+                                <th>Plano</th>
+                                <th>Status</th>
+                                <th>Cadastro</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="recent-companies">
+                            <tr>
+                                <td colspan="5" class="table-loading">
+                                    Carregando empresas...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- KS STOCK -->
+<script src="../js/config.js"></script>
+<script src="../js/supabase-client.js"></script>
+
+<!-- ADMIN -->
+<script src="js/admin-auth.js"></script>
+<script src="js/admin.js"></script>
+
+</body>
+</html>
