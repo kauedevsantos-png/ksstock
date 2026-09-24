@@ -13,16 +13,11 @@ const Produtos = {
   editingProductId: null,
   editingCategoryId: null,
 
-
   async init() {
 
-    const authData =
-      await Auth.requireAuth();
+    const authData = await Auth.requireAuth();
 
-    if (
-      !authData &&
-      CONFIG.isSupabaseConfigured()
-    ) {
+    if (!authData && CONFIG.isSupabaseConfigured()) {
       return;
     }
 
@@ -33,31 +28,29 @@ const Produtos = {
     await this.loadProducts();
   },
 
-
   bindEvents() {
 
-    const searchInput =
-      document.getElementById(
-        'search-products'
-      );
+    // ============================================================
+    // BUSCA DE PRODUTOS
+    // ============================================================
+
+    const searchInput = document.getElementById('search-products');
 
     if (searchInput) {
 
       searchInput.addEventListener(
         'input',
-        UI.debounce(
-          () => this.filterProducts(),
-          250
-        )
+        UI.debounce(() => this.filterProducts(), 250)
       );
 
     }
 
 
-    const filterCat =
-      document.getElementById(
-        'filter-category'
-      );
+    // ============================================================
+    // FILTRO DE CATEGORIA
+    // ============================================================
+
+    const filterCat = document.getElementById('filter-category');
 
     if (filterCat) {
 
@@ -69,10 +62,11 @@ const Produtos = {
     }
 
 
-    const filterStock =
-      document.getElementById(
-        'filter-stock-status'
-      );
+    // ============================================================
+    // FILTRO DE ESTOQUE
+    // ============================================================
+
+    const filterStock = document.getElementById('filter-stock-status');
 
     if (filterStock) {
 
@@ -84,51 +78,33 @@ const Produtos = {
     }
 
 
-    const costInput =
-      document.getElementById(
-        'prod-cost-price'
-      );
+    // ============================================================
+    // CÁLCULO AUTOMÁTICO DE MARGEM
+    // ============================================================
 
-    const saleInput =
-      document.getElementById(
-        'prod-sale-price'
-      );
+    const costInput = document.getElementById('prod-cost-price');
+    const saleInput = document.getElementById('prod-sale-price');
 
-
-    if (
-      costInput &&
-      saleInput
-    ) {
+    if (costInput && saleInput) {
 
       const updateMargin = () => {
 
         const cost =
-          parseFloat(
-            costInput.value
-          ) || 0;
+          parseFloat(costInput.value) || 0;
 
         const sale =
-          parseFloat(
-            saleInput.value
-          ) || 0;
+          parseFloat(saleInput.value) || 0;
 
         const marginValue =
           sale - cost;
 
         const marginPercent =
           sale > 0
-            ? (
-                (marginValue / sale) *
-                100
-              ).toFixed(1)
+            ? ((marginValue / sale) * 100).toFixed(1)
             : 0;
 
-
         const displayEl =
-          document.getElementById(
-            'margin-calc-display'
-          );
-
+          document.getElementById('margin-calc-display');
 
         if (displayEl) {
 
@@ -140,9 +116,7 @@ const Produtos = {
               ? 'var(--color-success)'
               : 'var(--color-danger)';
         }
-
       };
-
 
       costInput.addEventListener(
         'input',
@@ -153,43 +127,39 @@ const Produtos = {
         'input',
         updateMargin
       );
-
     }
 
 
-    const form =
-      document.getElementById(
-        'form-product'
-      );
+    // ============================================================
+    // FORMULÁRIO DE PRODUTO
+    // ============================================================
 
+    const form =
+      document.getElementById('form-product');
 
     if (form) {
 
-      form.addEventListener(
-        'submit',
-        event => {
+      form.addEventListener('submit', (e) => {
 
-          event.preventDefault();
+        e.preventDefault();
 
-          this.saveProduct();
+        this.saveProduct();
 
-        }
-      );
+      });
 
     }
-
   },
 
 
+  // ============================================================
+  // CATEGORIAS
+  // ============================================================
+
   async loadCategories() {
 
-    const client =
-      getSupabase();
+    const client = getSupabase();
 
-    if (!client) {
-      return;
-    }
-
+    if (!client) return;
 
     try {
 
@@ -201,9 +171,7 @@ const Produtos = {
         .select('*')
         .order('name');
 
-
       if (error) {
-
         console.error(
           'Erro ao carregar categorias:',
           error
@@ -212,12 +180,65 @@ const Produtos = {
         return;
       }
 
+      this.categoriesList = data || [];
 
-      this.categoriesList =
-        data || [];
+      const selectFilter =
+        document.getElementById(
+          'filter-category'
+        );
+
+      const selectForm =
+        document.getElementById(
+          'prod-category'
+        );
 
 
-      this.renderCategoryOptions();
+      // ------------------------------------------------------------
+      // FILTRO
+      // ------------------------------------------------------------
+
+      let options =
+        '<option value="">Todas as categorias</option>';
+
+
+      // ------------------------------------------------------------
+      // FORMULÁRIO
+      // ------------------------------------------------------------
+
+      let formOptions =
+        '<option value="">Sem categoria</option>';
+
+
+      this.categoriesList.forEach(category => {
+
+        const safeName =
+          this.escapeHtml(category.name);
+
+        options += `
+          <option value="${category.id}">
+            ${safeName}
+          </option>
+        `;
+
+        formOptions += `
+          <option value="${category.id}">
+            ${safeName}
+          </option>
+        `;
+
+      });
+
+
+      if (selectFilter) {
+        selectFilter.innerHTML = options;
+      }
+
+      if (selectForm) {
+        selectForm.innerHTML = formOptions;
+      }
+
+
+      this.renderCategoriesList();
 
     } catch (err) {
 
@@ -227,18 +248,791 @@ const Produtos = {
       );
 
     }
+  },
+
+
+  // ============================================================
+  // ABRIR GERENCIADOR DE CATEGORIAS
+  // ============================================================
+
+  openCategoriesModal() {
+
+    this.cancelCategoryEdit();
+
+    UI.openModal(
+      'modal-categories'
+    );
+
+    this.renderCategoriesList();
+  },
+
+
+  // ============================================================
+  // LISTAR CATEGORIAS
+  // ============================================================
+
+  renderCategoriesList() {
+
+    const container =
+      document.getElementById(
+        'categories-list'
+      );
+
+    if (!container) return;
+
+
+    if (!this.categoriesList.length) {
+
+      container.innerHTML = `
+        <div
+          style="
+            padding: 1.5rem;
+            text-align: center;
+            color: #94a3b8;
+            border: 1px dashed #cbd5e1;
+            border-radius: var(--radius-md);
+          "
+        >
+          Nenhuma categoria cadastrada.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    // Conta quantos produtos existem em cada categoria.
+
+    const counts = {};
+
+    this.productsList.forEach(product => {
+
+      if (product.category_id) {
+
+        counts[product.category_id] =
+          (counts[product.category_id] || 0) + 1;
+
+      }
+
+    });
+
+
+    container.innerHTML =
+      this.categoriesList
+        .map(category => {
+
+          const count =
+            counts[category.id] || 0;
+
+          const color =
+            this.normalizeCategoryColor(
+              category.color
+            );
+
+          const safeName =
+            this.escapeHtml(
+              category.name
+            );
+
+          const jsName =
+            this.escapeJsString(
+              category.name
+            );
+
+
+          return `
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+                padding: 0.85rem 1rem;
+                border: 1px solid #e2e8f0;
+                border-radius: var(--radius-md);
+                background: #fff;
+              "
+            >
+
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 0.75rem;
+                  min-width: 0;
+                "
+              >
+
+                <span
+                  style="
+                    width: 12px;
+                    height: 12px;
+                    flex: 0 0 12px;
+                    border-radius: 50%;
+                    background: ${color};
+                    box-shadow: 0 0 0 4px ${color}18;
+                  "
+                ></span>
+
+
+                <div style="min-width: 0;">
+
+                  <strong
+                    style="
+                      display: block;
+                      color: #0f172a;
+                      font-size: 0.9rem;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+                    "
+                  >
+                    ${safeName}
+                  </strong>
+
+                  <span
+                    style="
+                      font-size: 0.76rem;
+                      color: #94a3b8;
+                    "
+                  >
+                    ${count}
+                    ${count === 1 ? 'produto' : 'produtos'}
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div
+                style="
+                  display: flex;
+                  gap: 0.4rem;
+                  flex: 0 0 auto;
+                "
+              >
+
+                <!-- EDITAR -->
+
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  onclick="Produtos.editCategory('${category.id}')"
+                  title="Editar categoria"
+                >
+
+                  <svg
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                    ></path>
+                  </svg>
+
+                </button>
+
+
+                <!-- EXCLUIR -->
+
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  style="color: var(--color-danger);"
+                  onclick="Produtos.confirmDeleteCategory('${category.id}', '${jsName}')"
+                  title="Excluir categoria"
+                >
+
+                  <svg
+                    width="15"
+                    height="15"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    ></path>
+                  </svg>
+
+                </button>
+
+              </div>
+
+            </div>
+          `;
+
+        })
+        .join('');
+  },
+
+
+  // ============================================================
+  // EDITAR CATEGORIA
+  // ============================================================
+
+  editCategory(id) {
+
+    const category =
+      this.categoriesList.find(
+        item => item.id === id
+      );
+
+    if (!category) return;
+
+
+    this.editingCategoryId = id;
+
+
+    const nameInput =
+      document.getElementById(
+        'category-name'
+      );
+
+    const colorInput =
+      document.getElementById(
+        'category-color'
+      );
+
+    const saveBtn =
+      document.getElementById(
+        'btn-save-category'
+      );
+
+    const cancelBtn =
+      document.getElementById(
+        'btn-cancel-category-edit'
+      );
+
+
+    if (nameInput) {
+
+      nameInput.value =
+        category.name || '';
+
+      nameInput.focus();
+
+    }
+
+
+    if (colorInput) {
+
+      colorInput.value =
+        this.normalizeCategoryColor(
+          category.color
+        );
+
+    }
+
+
+    if (saveBtn) {
+
+      saveBtn.innerHTML = `
+        <svg
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          ></path>
+        </svg>
+
+        Salvar alteração
+      `;
+
+    }
+
+
+    if (cancelBtn) {
+
+      cancelBtn.style.display =
+        'inline-flex';
+
+    }
+  },
+
+
+  // ============================================================
+  // CANCELAR EDIÇÃO DE CATEGORIA
+  // ============================================================
+
+  cancelCategoryEdit() {
+
+    this.editingCategoryId = null;
+
+
+    const nameInput =
+      document.getElementById(
+        'category-name'
+      );
+
+    const colorInput =
+      document.getElementById(
+        'category-color'
+      );
+
+    const saveBtn =
+      document.getElementById(
+        'btn-save-category'
+      );
+
+    const cancelBtn =
+      document.getElementById(
+        'btn-cancel-category-edit'
+      );
+
+
+    if (nameInput) {
+      nameInput.value = '';
+    }
+
+
+    if (colorInput) {
+      colorInput.value =
+        '#4f46e5';
+    }
+
+
+    if (saveBtn) {
+
+      saveBtn.innerHTML = `
+        <svg
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16M20 12H4"
+          ></path>
+        </svg>
+
+        Adicionar
+      `;
+
+    }
+
+
+    if (cancelBtn) {
+
+      cancelBtn.style.display =
+        'none';
+
+    }
+  },
+
+
+  // ============================================================
+  // SALVAR CATEGORIA
+  // ============================================================
+
+  async saveCategory() {
+
+    const client =
+      getSupabase();
+
+    if (!client) return;
+
+
+    const nameInput =
+      document.getElementById(
+        'category-name'
+      );
+
+    const colorInput =
+      document.getElementById(
+        'category-color'
+      );
+
+    const saveBtn =
+      document.getElementById(
+        'btn-save-category'
+      );
+
+
+    const name =
+      (nameInput?.value || '')
+        .trim();
+
+    const color =
+      this.normalizeCategoryColor(
+        colorInput?.value
+      );
+
+
+    if (!name) {
+
+      UI.showToast(
+        'warning',
+        'Campo obrigatório',
+        'Informe o nome da categoria.'
+      );
+
+      nameInput?.focus();
+
+      return;
+    }
+
+
+    if (name.length > 100) {
+
+      UI.showToast(
+        'warning',
+        'Nome muito longo',
+        'A categoria pode ter no máximo 100 caracteres.'
+      );
+
+      return;
+    }
+
+
+    if (saveBtn) {
+
+      saveBtn.disabled = true;
+      saveBtn.textContent =
+        'Salvando...';
+
+    }
+
+
+    try {
+
+      // ========================================================
+      // EDITAR
+      // ========================================================
+
+      if (this.editingCategoryId) {
+
+        const {
+          error
+        } = await client
+          .from('categories')
+          .update({
+            name,
+            color
+          })
+          .eq(
+            'id',
+            this.editingCategoryId
+          );
+
+
+        if (error) {
+          throw error;
+        }
+
+
+        UI.showToast(
+          'success',
+          'Categoria atualizada',
+          'As alterações foram salvas.'
+        );
+
+      }
+
+      // ========================================================
+      // CRIAR
+      // ========================================================
+
+      else {
+
+        const user =
+          Auth.getCurrentUser();
+
+        const company_id =
+          user
+            ? user.company_id
+            : null;
+
+
+        if (!company_id) {
+
+          throw new Error(
+            'Empresa do usuário não encontrada.'
+          );
+
+        }
+
+
+        const {
+          error
+        } = await client
+          .from('categories')
+          .insert({
+            company_id,
+            name,
+            color
+          });
+
+
+        if (error) {
+          throw error;
+        }
+
+
+        UI.showToast(
+          'success',
+          'Categoria criada',
+          'Nova categoria adicionada.'
+        );
+
+      }
+
+
+      this.cancelCategoryEdit();
+
+      await this.loadCategories();
+
+      await this.loadProducts();
+
+
+    } catch (err) {
+
+      console.error(
+        'Erro ao salvar categoria:',
+        err
+      );
+
+
+      if (err?.code === '23505') {
+
+        UI.showToast(
+          'warning',
+          'Categoria duplicada',
+          'Já existe uma categoria com esse nome.'
+        );
+
+      } else {
+
+        UI.showToast(
+          'error',
+          'Erro',
+          'Não foi possível salvar a categoria.'
+        );
+
+      }
+
+    } finally {
+
+      if (saveBtn) {
+
+        saveBtn.disabled = false;
+
+        saveBtn.innerHTML = `
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16M20 12H4"
+            ></path>
+          </svg>
+
+          Adicionar
+        `;
+
+      }
+    }
+  },
+
+
+  // ============================================================
+  // EXCLUIR CATEGORIA
+  // ============================================================
+
+  confirmDeleteCategory(id, name) {
+
+    UI.confirmAction(
+
+      'Excluir Categoria',
+
+      `Excluir "${name}"? Os produtos não serão excluídos. Eles ficarão sem categoria.`,
+
+      async () => {
+
+        const client =
+          getSupabase();
+
+        if (!client) return;
+
+
+        try {
+
+          // Primeiro remove a associação
+          // dos produtos com a categoria.
+
+          const {
+            error: productsError
+          } = await client
+            .from('products')
+            .update({
+              category_id: null
+            })
+            .eq(
+              'category_id',
+              id
+            );
+
+
+          if (productsError) {
+            throw productsError;
+          }
+
+
+          // Agora exclui a categoria.
+
+          const {
+            error: categoryError
+          } = await client
+            .from('categories')
+            .delete()
+            .eq(
+              'id',
+              id
+            );
+
+
+          if (categoryError) {
+            throw categoryError;
+          }
+
+
+          UI.showToast(
+            'success',
+            'Categoria excluída',
+            'A categoria foi removida e os produtos foram preservados.'
+          );
+
+
+          if (
+            this.editingCategoryId === id
+          ) {
+
+            this.cancelCategoryEdit();
+
+          }
+
+
+          await this.loadCategories();
+
+          await this.loadProducts();
+
+          this.filterProducts();
+
+
+        } catch (err) {
+
+          console.error(
+            'Erro ao excluir categoria:',
+            err
+          );
+
+
+          UI.showToast(
+            'error',
+            'Erro',
+            'Não foi possível excluir a categoria.'
+          );
+
+        }
+
+      }
+
+    );
+  },
+
+
+  // ============================================================
+  // NORMALIZAR COR
+  // ============================================================
+
+  normalizeCategoryColor(color) {
+
+    const value =
+      String(color || '')
+        .trim();
+
+
+    if (
+      /^#[0-9A-Fa-f]{6}$/.test(value)
+    ) {
+
+      return value;
+
+    }
+
+
+    return '#4f46e5';
+  },
+
+
+  // ============================================================
+  // ESCAPAR HTML
+  // ============================================================
+
+  escapeHtml(value) {
+
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
 
   },
 
+
+  // ============================================================
+  // ESCAPAR TEXTO PARA ONCLICK
+  // ============================================================
+
+  escapeJsString(value) {
+
+    return String(value ?? '')
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '\\"')
+      .replace(/\r?\n/g, ' ');
+
+  },
+
+
+  // ============================================================
+  // FORNECEDORES
+  // ============================================================
 
   async loadSuppliers() {
 
     const client =
       getSupabase();
 
-    if (!client) {
-      return;
-    }
+    if (!client) return;
 
 
     try {
@@ -248,26 +1042,45 @@ const Produtos = {
         error
       } = await client
         .from('suppliers')
-        .select('*')
+        .select('id, name')
         .order('name');
 
 
-      if (error) {
+      if (!error && data) {
 
-        console.error(
-          'Erro ao carregar fornecedores:',
-          error
-        );
+        this.suppliersList =
+          data;
 
-        return;
+
+        const selectForm =
+          document.getElementById(
+            'prod-supplier'
+          );
+
+
+        if (selectForm) {
+
+          let opts =
+            '<option value="">Sem fornecedor</option>';
+
+
+          data.forEach(s => {
+
+            opts += `
+              <option value="${s.id}">
+                ${this.escapeHtml(s.name)}
+              </option>
+            `;
+
+          });
+
+
+          selectForm.innerHTML =
+            opts;
+
+        }
+
       }
-
-
-      this.suppliersList =
-        data || [];
-
-
-      this.renderSupplierOptions();
 
     } catch (err) {
 
@@ -277,20 +1090,20 @@ const Produtos = {
       );
 
     }
-
   },
 
+
+  // ============================================================
+  // PRODUTOS
+  // ============================================================
 
   async loadProducts() {
 
     const client =
       getSupabase();
 
-    if (!client) {
-      return;
-    }
-
-
+    if (!client) return;
+    
     const tbody =
       document.getElementById(
         'products-tbody'
@@ -304,7 +1117,7 @@ const Produtos = {
           <td
             colspan="7"
             class="text-center py-4"
-            style="color:#94a3b8;"
+            style="color: #94a3b8;"
           >
             Carregando produtos...
           </td>
@@ -320,19 +1133,15 @@ const Produtos = {
         data,
         error
       } = await client
+
         .from('products')
+
         .select(`
           *,
-          categories (
-            id,
-            name,
-            color
-          ),
-          suppliers (
-            id,
-            name
-          )
+          categories ( id, name, color ),
+          suppliers ( id, name )
         `)
+
         .order('name');
 
 
@@ -373,9 +1182,12 @@ const Produtos = {
       );
 
     }
-
   },
 
+
+  // ============================================================
+  // FILTROS
+  // ============================================================
 
   filterProducts() {
 
@@ -421,18 +1233,13 @@ const Produtos = {
 
           const matchesSearch =
             !query ||
-            productName.includes(
-              query
-            ) ||
-            productSku.includes(
-              query
-            );
+            productName.includes(query) ||
+            productSku.includes(query);
 
 
-          const matchesCategory =
+          const matchesCat =
             !catId ||
-            product.category_id ===
-              catId;
+            product.category_id === catId;
 
 
           let matchesStock =
@@ -440,37 +1247,35 @@ const Produtos = {
 
 
           if (
-            stockStatus ===
-            'low'
+            stockStatus === 'out'
           ) {
 
             matchesStock =
-              Number(
-                product.stock_quantity
-              ) <=
-              Number(
-                product.minimum_stock
-              );
+              product.stock_quantity <= 0;
 
-          }
-
-
-          if (
-            stockStatus ===
-            'out'
+          } else if (
+            stockStatus === 'low'
           ) {
 
             matchesStock =
-              Number(
-                product.stock_quantity
-              ) <= 0;
+              product.stock_quantity > 0 &&
+              product.stock_quantity <=
+                product.minimum_stock;
+
+          } else if (
+            stockStatus === 'ok'
+          ) {
+
+            matchesStock =
+              product.stock_quantity >
+                product.minimum_stock;
 
           }
 
 
           return (
             matchesSearch &&
-            matchesCategory &&
+            matchesCat &&
             matchesStock
           );
 
@@ -481,80 +1286,560 @@ const Produtos = {
     this.renderTable(
       filtered
     );
-
   },
 
 
-  escapeHtml(value) {
+  // ============================================================
+  // TABELA
+  // ============================================================
 
-    return String(
-      value ?? ''
-    )
-      .replace(
-        /&/g,
-        '&amp;'
-      )
-      .replace(
-        /</g,
-        '&lt;'
-      )
-      .replace(
-        />/g,
-        '&gt;'
-      )
-      .replace(
-        /"/g,
-        '&quot;'
-      )
-      .replace(
-        /'/g,
-        '&#039;'
+  renderTable(products) {
+
+    const tbody =
+      document.getElementById(
+        'products-tbody'
       );
 
+
+    if (!tbody) return;
+
+
+    if (products.length === 0) {
+
+      tbody.innerHTML = `
+        <tr>
+
+          <td colspan="7">
+
+            <div class="empty-state">
+
+              <div class="empty-state-icon">
+
+                <svg
+                  width="28"
+                  height="28"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                  ></path>
+                </svg>
+
+              </div>
+
+
+              <h4 class="empty-state-title">
+                Nenhum produto encontrado
+              </h4>
+
+
+              <p class="empty-state-desc">
+                Cadastre seu primeiro produto para começar a controlar o estoque do seu negócio com rapidez e clareza.
+              </p>
+
+
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="Produtos.openNewModal()"
+              >
+
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  ></path>
+                </svg>
+
+                Cadastrar Primeiro Produto
+
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+      `;
+
+      return;
+    }
+
+
+    tbody.innerHTML =
+      products
+        .map(product => {
+
+          const margin =
+            (
+              product.sale_price -
+              product.cost_price
+            );
+
+
+          const marginPct =
+            product.sale_price > 0
+              ? (
+                  (
+                    margin /
+                    product.sale_price
+                  ) * 100
+                ).toFixed(0)
+              : 0;
+
+
+          const categoryColor =
+            this.normalizeCategoryColor(
+              product.categories?.color
+            );
+
+
+          const categoryBadge =
+            product.categories
+
+              ? `
+                <span
+                  class="badge"
+                  style="
+                    background-color: ${categoryColor}15;
+                    color: ${categoryColor};
+                    border: 1px solid ${categoryColor}40;
+                  "
+                >
+                  ${this.escapeHtml(
+                    product.categories.name
+                  )}
+                </span>
+              `
+
+              : `
+                <span
+                  style="
+                    color: #94a3b8;
+                    font-size: 0.8rem;
+                  "
+                >
+                  -
+                </span>
+              `;
+
+
+          const safeName =
+            this.escapeHtml(
+              product.name
+            );
+
+
+          const safeSku =
+            this.escapeHtml(
+              product.sku || 'N/A'
+            );
+
+
+          const safeId =
+            this.escapeJsString(
+              product.id
+            );
+
+
+          const safeProductName =
+            this.escapeJsString(
+              product.name
+            );
+
+
+          return `
+            <tr>
+
+              <td>
+
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                  "
+                >
+
+                  <div
+                    style="
+                      width: 36px;
+                      height: 36px;
+                      border-radius: var(--radius-md);
+                      background: #f1f5f9;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-weight: 700;
+                      color: #475569;
+                      font-size: 0.85rem;
+                    "
+                  >
+                    ${safeName.substring(0, 1).toUpperCase()}
+                  </div>
+
+
+                  <div>
+
+                    <strong
+                      style="
+                        display: block;
+                        font-size: 0.92rem;
+                      "
+                    >
+                      ${safeName}
+                    </strong>
+
+                    <span
+                      style="
+                        font-size: 0.75rem;
+                        color: #94a3b8;
+                      "
+                    >
+                      SKU: ${safeSku}
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </td>
+
+
+              <td>
+                ${categoryBadge}
+              </td>
+
+
+              <td>
+                ${UI.getStockBadge(
+                  product.stock_quantity,
+                  product.minimum_stock
+                )}
+              </td>
+
+
+              <td>
+                ${UI.formatBRL(
+                  product.cost_price
+                )}
+              </td>
+
+
+              <td>
+                <strong>
+                  ${UI.formatBRL(
+                    product.sale_price
+                  )}
+                </strong>
+              </td>
+
+
+              <td>
+
+                <span
+                  style="
+                    color: ${
+                      margin >= 0
+                        ? 'var(--color-success)'
+                        : 'var(--color-danger)'
+                    };
+                    font-weight: 600;
+                    font-size: 0.82rem;
+                  "
+                >
+                  ${UI.formatBRL(margin)}
+                  (${marginPct}%)
+                </span>
+
+              </td>
+
+
+              <td style="text-align: right;">
+
+                <div
+                  style="
+                    display: inline-flex;
+                    gap: 0.4rem;
+                  "
+                >
+
+                  <!-- EDITAR PRODUTO -->
+
+                  <button
+                    class="btn btn-secondary btn-sm"
+                    onclick="Produtos.openEditModal('${safeId}')"
+                    title="Editar"
+                  >
+
+                    <svg
+                      width="15"
+                      height="15"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                      ></path>
+                    </svg>
+
+                  </button>
+
+
+                  <!-- EXCLUIR PRODUTO -->
+
+                  <button
+                    class="btn btn-secondary btn-sm"
+                    style="color: var(--color-danger);"
+                    onclick="Produtos.confirmDelete('${safeId}', '${safeProductName}')"
+                    title="Excluir"
+                  >
+
+                    <svg
+                      width="15"
+                      height="15"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 01-1 1v3M4 7h16"
+                      ></path>
+                    </svg>
+
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+          `;
+
+        })
+        .join('');
   },
 
+
+  // ============================================================
+  // NOVO PRODUTO
+  // ============================================================
+
+  openNewModal() {
+
+    this.editingProductId = null;
+
+
+    document.getElementById(
+      'modal-product-title'
+    ).textContent =
+      'Novo Produto';
+
+
+    document.getElementById(
+      'form-product'
+    ).reset();
+
+
+    document.getElementById(
+      'prod-stock-quantity'
+    ).disabled = false;
+
+
+    document.getElementById(
+      'margin-calc-display'
+    ).textContent =
+      'R$ 0,00 (0%)';
+
+
+    UI.openModal(
+      'modal-product'
+    );
+  },
+
+
+  // ============================================================
+  // EDITAR PRODUTO
+  // ============================================================
+
+  openEditModal(id) {
+
+    const prod =
+      this.productsList.find(
+        p => p.id === id
+      );
+
+
+    if (!prod) return;
+
+
+    this.editingProductId = id;
+
+
+    document.getElementById(
+      'modal-product-title'
+    ).textContent =
+      'Editar Produto';
+
+
+    document.getElementById(
+      'prod-name'
+    ).value =
+      prod.name || '';
+
+
+    document.getElementById(
+      'prod-sku'
+    ).value =
+      prod.sku || '';
+
+
+    document.getElementById(
+      'prod-category'
+    ).value =
+      prod.category_id || '';
+
+
+    document.getElementById(
+      'prod-supplier'
+    ).value =
+      prod.supplier_id || '';
+
+
+    document.getElementById(
+      'prod-cost-price'
+    ).value =
+      prod.cost_price;
+
+
+    document.getElementById(
+      'prod-sale-price'
+    ).value =
+      prod.sale_price;
+
+
+    document.getElementById(
+      'prod-stock-quantity'
+    ).value =
+      prod.stock_quantity;
+
+
+    document.getElementById(
+      'prod-stock-quantity'
+    ).disabled =
+      true;
+
+
+    document.getElementById(
+      'prod-min-stock'
+    ).value =
+      prod.minimum_stock;
+
+
+    document.getElementById(
+      'prod-description'
+    ).value =
+      prod.description || '';
+
+
+    const margin =
+      prod.sale_price -
+      prod.cost_price;
+
+
+    const marginPct =
+      prod.sale_price > 0
+        ? (
+            (
+              margin /
+              prod.sale_price
+            ) * 100
+          ).toFixed(1)
+        : 0;
+
+
+    const marginEl =
+      document.getElementById(
+        'margin-calc-display'
+      );
+
+
+    if (marginEl) {
+
+      marginEl.textContent =
+        `${UI.formatBRL(margin)} (${marginPct}%)`;
+
+    }
+
+
+    UI.openModal(
+      'modal-product'
+    );
+  },
+
+
+  // ============================================================
+  // SALVAR PRODUTO
+  // ============================================================
 
   async saveProduct() {
 
     const client =
       getSupabase();
 
-    if (!client) {
-      return;
-    }
+
+    if (!client) return;
 
 
     const name =
       document.getElementById(
         'prod-name'
-      )?.value
-        .trim() || '';
+      ).value.trim();
 
 
     const sku =
       document.getElementById(
         'prod-sku'
-      )?.value
-        .trim() || '';
+      ).value.trim();
 
 
     const category_id =
       document.getElementById(
         'prod-category'
-      )?.value || null;
+      ).value || null;
 
 
     const supplier_id =
       document.getElementById(
         'prod-supplier'
-      )?.value || null;
+      ).value || null;
 
 
     const cost_price =
       parseFloat(
         document.getElementById(
           'prod-cost-price'
-        )?.value
+        ).value
       ) || 0;
 
 
@@ -562,7 +1847,7 @@ const Produtos = {
       parseFloat(
         document.getElementById(
           'prod-sale-price'
-        )?.value
+        ).value
       ) || 0;
 
 
@@ -570,15 +1855,14 @@ const Produtos = {
       parseInt(
         document.getElementById(
           'prod-min-stock'
-        )?.value
+        ).value
       ) || 5;
 
 
     const description =
       document.getElementById(
         'prod-description'
-      )?.value
-        .trim() || '';
+      ).value.trim();
 
 
     if (!name) {
@@ -593,36 +1877,17 @@ const Produtos = {
     }
 
 
-    if (
-      cost_price < 0 ||
-      sale_price < 0
-    ) {
-
-      UI.showToast(
-        'warning',
-        'Valores inválidos',
-        'Os valores não podem ser negativos.'
-      );
-
-      return;
-    }
-
-
     const saveBtn =
       document.getElementById(
         'btn-save-product'
       );
 
 
-    if (saveBtn) {
+    saveBtn.disabled =
+      true;
 
-      saveBtn.disabled =
-        true;
-
-      saveBtn.textContent =
-        'Salvando...';
-
-    }
+    saveBtn.textContent =
+      'Salvando...';
 
 
     try {
@@ -637,48 +1902,18 @@ const Produtos = {
           : null;
 
 
-      if (!company_id) {
+      // ========================================================
+      // EDITAR PRODUTO
+      // ========================================================
 
-        throw new Error(
-          'Empresa não encontrada.'
-        );
-
-      }
-
-
-      /*
-       * NOVO PRODUTO:
-       * verifica limite antes do INSERT.
-       */
-      if (
-        !this.editingProductId &&
-        typeof Subscription !== 'undefined'
-      ) {
-
-        const allowed =
-          await Subscription.canCreate(
-            'products'
-          );
-
-
-        if (!allowed) {
-          return;
-        }
-
-      }
-
-
-      /*
-       * EDITAR PRODUTO
-       */
-      if (
-        this.editingProductId
-      ) {
+      if (this.editingProductId) {
 
         const {
           error
         } = await client
+
           .from('products')
+
           .update({
 
             name,
@@ -694,13 +1929,10 @@ const Produtos = {
               new Date().toISOString()
 
           })
+
           .eq(
             'id',
             this.editingProductId
-          )
-          .eq(
-            'company_id',
-            company_id
           );
 
 
@@ -711,44 +1943,59 @@ const Produtos = {
 
         UI.showToast(
           'success',
-          'Produto atualizado!',
-          'As informações foram salvas.'
+          'Atualizado!',
+          'Produto salvo com sucesso.'
         );
 
-      } else {
+      }
 
-        /*
-         * NOVO PRODUTO
-         */
+
+      // ========================================================
+      // NOVO PRODUTO
+      // ========================================================
+
+      else {
+
+        const allowed =
+          await Subscription.canCreate('products');
+
+        if (!allowed) {
+          return;
+        }
+
+        const stock_quantity =
+          parseInt(
+            document.getElementById(
+              'prod-stock-quantity'
+            ).value
+          ) || 0;
+
+
         const {
+          data: newProd,
           error
         } = await client
+
           .from('products')
+
           .insert({
 
             company_id,
-
             name,
-
-            sku:
-              sku || null,
-
+            sku,
             category_id,
-
             supplier_id,
-
             cost_price,
-
             sale_price,
-
-            stock_quantity:
-              0,
-
+            stock_quantity: 0,
             minimum_stock,
-
             description
 
-          });
+          })
+
+          .select()
+
+          .single();
 
 
         if (error) {
@@ -756,17 +2003,36 @@ const Produtos = {
         }
 
 
+        // O saldo inicial é lançado pela RPC para manter auditoria.
+        if (stock_quantity > 0 && newProd) {
+          const { error: stockError } = await client.rpc(
+            'adjust_stock_atomic',
+            {
+              p_product_id: newProd.id,
+              p_type: 'entry',
+              p_quantity: stock_quantity,
+              p_reason: 'Estoque inicial cadastrado'
+            }
+          );
+
+          if (stockError) {
+            await client
+              .from('products')
+              .delete()
+              .eq('id', newProd.id);
+
+            throw stockError;
+          }
+        }
+
+
         UI.showToast(
           'success',
-          'Produto criado!',
-          'O produto foi adicionado ao estoque.'
+          'Cadastrado!',
+          'Novo produto adicionado.'
         );
 
       }
-
-
-      this.editingProductId =
-        null;
 
 
       UI.closeModal(
@@ -788,25 +2054,108 @@ const Produtos = {
       UI.showToast(
         'error',
         'Erro',
-        err.message ||
-          'Não foi possível salvar o produto.'
+        'Não foi possível salvar o produto. Tente novamente.'
       );
 
 
     } finally {
 
-      if (saveBtn) {
+      saveBtn.disabled =
+        false;
 
-        saveBtn.disabled =
-          false;
+      saveBtn.textContent =
+        'Salvar Produto';
 
-        saveBtn.textContent =
-          'Salvar Produto';
+    }
+  },
+
+
+  // ============================================================
+  // EXCLUIR PRODUTO
+  // ============================================================
+
+  confirmDelete(id, name) {
+
+    UI.confirmAction(
+
+      'Excluir Produto',
+
+      `Tem certeza que deseja excluir "${name}"? O histórico associado permanecerá seguro no banco.`,
+
+      async () => {
+
+        const client =
+          getSupabase();
+
+
+        if (!client) return;
+
+
+        try {
+
+          const {
+            error
+          } = await client
+
+            .from('products')
+
+            .delete()
+
+            .eq(
+              'id',
+              id
+            );
+
+
+          if (error) {
+
+            if (
+              error.code ===
+              '23503'
+            ) {
+
+              UI.showToast(
+                'error',
+                'Não permitido',
+                'Este produto já possui vendas registradas e não pode ser excluído.'
+              );
+
+            } else {
+
+              UI.showToast(
+                'error',
+                'Erro',
+                'Falha ao remover produto.'
+              );
+
+            }
+
+            return;
+          }
+
+
+          UI.showToast(
+            'success',
+            'Removido',
+            'Produto excluído com sucesso.'
+          );
+
+
+          await this.loadProducts();
+
+
+        } catch (err) {
+
+          console.error(
+            'Erro ao excluir:',
+            err
+          );
+
+        }
 
       }
 
-    }
-
+    );
   }
 
 };

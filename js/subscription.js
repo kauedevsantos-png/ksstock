@@ -9,11 +9,10 @@ const Subscription = {
   async init() {
     const client = getSupabase();
 
-    if (!client) {
-      return false;
-    }
+    if (!client) return false;
 
     try {
+
       const { data, error } = await client.rpc(
         'get_subscription_info'
       );
@@ -27,23 +26,14 @@ const Subscription = {
         return false;
       }
 
-      this.info = Array.isArray(data)
-        ? data[0] || null
-        : data || null;
-
-      if (!this.info) {
-        console.error(
-          'Nenhuma informação de assinatura foi retornada.'
-        );
-
-        return false;
-      }
+      this.info = Array.isArray(data) ? data[0] : data;
 
       this.updateInterface();
 
       return this.isAllowed();
 
     } catch (err) {
+
       console.error(
         'Erro no Subscription:',
         err
@@ -55,9 +45,8 @@ const Subscription = {
 
 
   isAllowed() {
-    if (!this.info) {
-      return false;
-    }
+
+    if (!this.info) return false;
 
     return (
       this.info.status === 'trial' ||
@@ -67,9 +56,8 @@ const Subscription = {
 
 
   isExpired() {
-    if (!this.info) {
-      return false;
-    }
+
+    if (!this.info) return false;
 
     return (
       this.info.status === 'expired' ||
@@ -80,143 +68,117 @@ const Subscription = {
 
 
   async canCreate(resource) {
-
     if (!this.info) {
-      const initialized = await this.init();
-
-      if (!initialized) {
-        UI.showToast(
-          'error',
-          'Assinatura',
-          'Não foi possível verificar o status da sua conta.'
-        );
-
-        return false;
-      }
+      const allowed = await this.init();
+      if (!allowed) return false;
     }
 
     if (!this.isAllowed()) {
-      this.showBlockedScreen();
+      this.updateInterface();
       return false;
     }
 
     const client = getSupabase();
-
-    if (!client) {
-      return false;
-    }
+    if (!client) return false;
 
     try {
-
-      const {
-        data,
-        error
-      } = await client.rpc(
+      const { data, error } = await client.rpc(
         'check_company_limit',
-        {
-          p_resource: resource
-        }
+        { p_resource: resource }
       );
 
-      if (error) {
-        console.error(
-          'Erro ao verificar limite:',
-          error
-        );
+      if (error) throw error;
 
-        UI.showToast(
-          'error',
-          'Erro',
-          'Não foi possível verificar o limite do seu plano.'
-        );
+      const allowed = data === true || data?.allowed === true;
 
-        return false;
-      }
-
-      const result =
-        Array.isArray(data)
-          ? data[0]
-          : data;
-
-      if (!result) {
-        UI.showToast(
-          'error',
-          'Erro',
-          'Não foi possível verificar o limite do seu plano.'
-        );
-
-        return false;
-      }
-
-      if (result.allowed === false) {
-
-        const resourceNames = {
+      if (!allowed && typeof UI !== 'undefined' && UI.showToast) {
+        const labels = {
           products: 'produtos',
           customers: 'clientes',
           categories: 'categorias',
           users: 'usuários',
-          sales: 'vendas neste mês'
+          sales: 'vendas'
         };
-
-        const resourceName =
-          resourceNames[resource] || resource;
 
         UI.showToast(
           'warning',
-          'Limite atingido',
-          `Seu plano atingiu o limite de ${resourceName}.`
+          'Limite do plano atingido',
+          `O limite de ${labels[resource] || resource} do seu plano foi atingido.`
         );
-
-        return false;
       }
 
-      return true;
-
-    } catch (err) {
-
-      console.error(
-        'Erro ao verificar limite:',
-        err
-      );
-
-      UI.showToast(
-        'error',
-        'Erro',
-        'Não foi possível verificar o limite do plano.'
-      );
-
+      return allowed;
+    } catch (error) {
+      console.error('Erro ao verificar limite do plano:', error);
+      if (typeof UI !== 'undefined' && UI.showToast) {
+        UI.showToast('error', 'Não foi possível validar o limite', 'Tente novamente.');
+      }
       return false;
     }
   },
 
-
   updateInterface() {
 
-    if (!this.info) {
-      return;
-    }
+    if (!this.info) return;
 
-    const status =
-      this.info.status;
+    const status = this.info.status;
+    const days = Number(
+      this.info.days_remaining || 0
+    );
 
-    const days =
-      Number(
-        this.info.days_remaining || 0
-      );
 
+    
+
+    const planLabels = {
+      basico: 'Plano Básico',
+      profissional: 'Plano Profissional',
+      premium: 'Plano Premium'
+    };
+
+    document
+      .querySelectorAll('.company-plan')
+      .forEach(element => {
+        element.textContent =
+          planLabels[this.info.plan] || 'KS Stock';
+      });
+
+    document
+      .querySelectorAll('[data-subscription-status]')
+      .forEach(element => {
+        const labels = {
+          trial: 'Período gratuito',
+          active: 'Ativo',
+          expired: 'Expirado',
+          suspended: 'Suspenso',
+          cancelled: 'Cancelado'
+        };
+        element.textContent = labels[status] || status;
+      });
+/*
+     * AVISO DO TESTE
+     */
 
     if (
       status === 'trial' &&
       days <= 3 &&
       days > 0
     ) {
+
       this.showTrialWarning(days);
+
     }
 
+
+    /*
+     * BLOQUEIO
+     */
 
     if (this.isExpired()) {
+
       this.showBlockedScreen();
+
     }
+
   },
 
 
@@ -230,11 +192,12 @@ const Subscription = {
       return;
     }
 
-    const warning =
-      document.createElement('div');
 
-    warning.id =
-      'ks-trial-warning';
+    const warning = document.createElement(
+      'div'
+    );
+
+    warning.id = 'ks-trial-warning';
 
     warning.innerHTML = `
       <div style="
@@ -260,37 +223,24 @@ const Subscription = {
     `;
 
     document.body.appendChild(warning);
+
   },
 
 
   showBlockedScreen() {
 
-    if (
-      document.getElementById(
-        'ks-subscription-blocker'
-      )
-    ) {
-      return;
-    }
+    /*
+     * Impede a página de continuar sendo utilizada.
+     */
 
-    const blocker =
-      document.createElement('div');
+    document.body.innerHTML = `
 
-    blocker.id =
-      'ks-subscription-blocker';
-
-    blocker.innerHTML = `
       <div style="
-        position:fixed;
-        inset:0;
-        z-index:999999;
         min-height:100vh;
-        overflow:auto;
         display:flex;
         align-items:center;
         justify-content:center;
         padding:24px;
-        box-sizing:border-box;
         background:#f8fafc;
         font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       ">
@@ -298,13 +248,12 @@ const Subscription = {
         <div style="
           width:100%;
           max-width:520px;
-          background:#ffffff;
+          background:white;
           border:1px solid #e2e8f0;
           border-radius:24px;
           padding:48px 32px;
           text-align:center;
           box-shadow:0 20px 60px rgba(15,23,42,.08);
-          box-sizing:border-box;
         ">
 
           <div style="
@@ -324,7 +273,6 @@ const Subscription = {
           <h1 style="
             margin:0 0 12px;
             font-size:28px;
-            line-height:1.2;
             color:#0f172a;
           ">
             Período de teste encerrado
@@ -356,7 +304,7 @@ const Subscription = {
               padding:14px 22px;
               border-radius:12px;
               background:#16a34a;
-              color:#ffffff;
+              color:white;
               text-decoration:none;
               font-weight:700;
             "
@@ -376,10 +324,9 @@ const Subscription = {
 
       </div>
     `;
-
-    document.body.appendChild(blocker);
   }
 
 };
+
 
 window.Subscription = Subscription;
