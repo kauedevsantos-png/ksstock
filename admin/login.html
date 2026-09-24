@@ -403,9 +403,38 @@
 
     <!-- SUPABASE / KS STOCK -->
 
-    <script src="../js/config.js"></script>
-    <script src="../js/supabase-client.js"></script>
-    <script src="../js/auth.js"></script>
+<!-- =========================================================
+     KS STOCK — SCRIPTS
+     ========================================================= -->
+
+<!-- Biblioteca oficial do Supabase — DEVE vir primeiro -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Configuração do projeto -->
+<script src="../js/config.js"></script>
+
+<!-- Cliente Supabase do KS Stock -->
+<script src="../js/supabase-client.js"></script>
+
+<!-- Autenticação -->
+<script src="../js/auth.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    console.log('KS Stock Admin: iniciando...');
+
+    const client = getSupabase();
+
+    if (!client) {
+      console.error('KS Stock Admin: Supabase não foi inicializado.');
+      return;
+    }
+
+    console.log('KS Stock Admin: Supabase carregado com sucesso.');
+
+    // resto do código do login...
+  });
+</script>
 
 
     <script>
