@@ -1103,7 +1103,18 @@ const Produtos = {
       getSupabase();
 
     if (!client) return;
+    
+// Verifica assinatura e limite do plano
+if (!this.editingProductId) {
 
+  const allowed =
+    await Subscription.canCreate('products');
+
+  if (!allowed) {
+    return;
+  }
+
+}
 
     const tbody =
       document.getElementById(
