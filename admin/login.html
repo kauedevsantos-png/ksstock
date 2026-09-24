@@ -409,23 +409,21 @@
 
     <!-- =========================================================
          KS STOCK — SCRIPTS
-         ORDEM IMPORTANTE
          ========================================================= -->
 
-    <!-- 1. Biblioteca oficial do Supabase -->
+    <!-- SUPABASE PRIMEIRO -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- 2. Configuração do projeto -->
+    <!-- CONFIG -->
     <script src="../js/config.js"></script>
 
-    <!-- 3. Cliente Supabase -->
+    <!-- CLIENTE SUPABASE -->
     <script src="../js/supabase-client.js"></script>
 
-    <!-- 4. Interface do KS Stock
-         DEVE vir antes do auth.js -->
+    <!-- UI -->
     <script src="../js/ui.js"></script>
 
-    <!-- 5. Autenticação -->
+    <!-- AUTH -->
     <script src="../js/auth.js"></script>
 
 
@@ -494,11 +492,6 @@
                     togglePassword.textContent =
                         '🙈';
 
-                    togglePassword.setAttribute(
-                        'aria-label',
-                        'Ocultar senha'
-                    );
-
                 } else {
 
                     passwordInput.type =
@@ -506,11 +499,6 @@
 
                     togglePassword.textContent =
                         '👁';
-
-                    togglePassword.setAttribute(
-                        'aria-label',
-                        'Mostrar senha'
-                    );
 
                 }
 
@@ -520,7 +508,7 @@
 
         /*
          * =========================================================
-         * MOSTRAR ERRO
+         * ERRO
          * =========================================================
          */
 
@@ -536,12 +524,6 @@
         }
 
 
-        /*
-         * =========================================================
-         * ESCONDER ERRO
-         * =========================================================
-         */
-
         function hideError() {
 
             errorBox.textContent = '';
@@ -555,7 +537,7 @@
 
         /*
          * =========================================================
-         * ESTADO DE CARREGAMENTO
+         * LOADING
          * =========================================================
          */
 
@@ -579,7 +561,66 @@
 
         /*
          * =========================================================
-         * VERIFICA SE O USUÁRIO É SUPER ADMIN
+         * VERIFICA APENAS A SESSÃO
+         *
+         * NÃO REDIRECIONA.
+         *
+         * Isso evita o loop infinito.
+         * =========================================================
+         */
+
+        async function getCurrentUser() {
+
+            try {
+
+                const client =
+                    getSupabase();
+
+                if (!client) {
+
+                    return null;
+
+                }
+
+
+                const {
+                    data,
+                    error
+                } =
+                    await client.auth.getUser();
+
+
+                if (error) {
+
+                    console.warn(
+                        'KS Stock Admin: nenhum usuário autenticado.',
+                        error.message
+                    );
+
+                    return null;
+
+                }
+
+
+                return data?.user || null;
+
+            } catch (error) {
+
+                console.error(
+                    'Erro ao obter usuário:',
+                    error
+                );
+
+                return null;
+
+            }
+
+        }
+
+
+        /*
+         * =========================================================
+         * VERIFICA SE JÁ ESTÁ AUTENTICADO NO ADMIN
          * =========================================================
          */
 
@@ -608,16 +649,27 @@
 
 
                 /*
-                 * -------------------------------------------------
-                 * USUÁRIO PRECISA ESTAR AUTENTICADO
-                 * -------------------------------------------------
+                 * NÃO USAMOS Auth.requireAuth()
+                 * AQUI.
+                 *
+                 * Ele redireciona automaticamente
+                 * e causava o loop.
                  */
 
                 const user =
-                    await Auth.requireAuth();
+                    await getCurrentUser();
 
+
+                /*
+                 * Se não estiver logado,
+                 * simplesmente deixa a tela aberta.
+                 */
 
                 if (!user) {
+
+                    console.log(
+                        'KS Stock Admin: nenhum usuário autenticado.'
+                    );
 
                     return;
 
@@ -625,9 +677,7 @@
 
 
                 /*
-                 * -------------------------------------------------
-                 * VERIFICA SUPER ADMIN
-                 * -------------------------------------------------
+                 * Verifica se é Super Admin
                  */
 
                 const {
@@ -642,7 +692,7 @@
                 if (error) {
 
                     console.error(
-                        'Erro ao verificar administrador:',
+                        'Erro ao verificar Super Admin:',
                         error
                     );
 
@@ -658,7 +708,7 @@
                 if (isAdmin !== true) {
 
                     showError(
-                        'Você não possui permissão para acessar o painel administrativo.'
+                        'Este usuário não possui acesso ao painel administrativo.'
                     );
 
                     return;
@@ -667,10 +717,8 @@
 
 
                 /*
-                 * -------------------------------------------------
-                 * SE JÁ AUTENTICOU O PAINEL
-                 * NESTA SESSÃO, ENTRA DIRETO
-                 * -------------------------------------------------
+                 * Se já passou pela senha nesta sessão,
+                 * entra direto.
                  */
 
                 const alreadyAuthenticated =
@@ -721,6 +769,7 @@
 
                 hideError();
 
+
                 const password =
                     passwordInput.value.trim();
 
@@ -761,9 +810,32 @@
 
 
                     /*
-                     * -------------------------------------------------
-                     * CONFIRMA SUPER ADMIN
-                     * -------------------------------------------------
+                     * =================================================
+                     * 1. VERIFICA SESSÃO
+                     * =================================================
+                     */
+
+                    const user =
+                        await getCurrentUser();
+
+
+                    if (!user) {
+
+                        showError(
+                            'Faça login no KS Stock primeiro para acessar o painel administrativo.'
+                        );
+
+                        setLoading(false);
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * =================================================
+                     * 2. VERIFICA SUPER ADMIN
+                     * =================================================
                      */
 
                     const {
@@ -778,7 +850,7 @@
                     if (adminError) {
 
                         console.error(
-                            'Erro ao verificar administrador:',
+                            'Erro ao verificar Super Admin:',
                             adminError
                         );
 
@@ -807,9 +879,9 @@
 
 
                     /*
-                     * -------------------------------------------------
-                     * VALIDA A SENHA NO BANCO
-                     * -------------------------------------------------
+                     * =================================================
+                     * 3. VALIDA SENHA ADMINISTRATIVA
+                     * =================================================
                      */
 
                     const {
@@ -844,9 +916,9 @@
 
 
                     /*
-                     * -------------------------------------------------
-                     * SENHA INCORRETA
-                     * -------------------------------------------------
+                     * =================================================
+                     * 4. SENHA INCORRETA
+                     * =================================================
                      */
 
                     if (valid !== true) {
@@ -867,14 +939,19 @@
 
 
                     /*
-                     * -------------------------------------------------
-                     * ACESSO LIBERADO
-                     * -------------------------------------------------
+                     * =================================================
+                     * 5. LOGIN ADMINISTRATIVO OK
+                     * =================================================
                      */
 
                     sessionStorage.setItem(
                         'ks_admin_authenticated',
                         'true'
+                    );
+
+
+                    console.log(
+                        'KS Stock Admin: acesso autorizado.'
                     );
 
 
@@ -902,7 +979,7 @@
 
         /*
          * =========================================================
-         * ENTER PARA ENTRAR
+         * ENTER
          * =========================================================
          */
 
@@ -924,7 +1001,7 @@
 
         /*
          * =========================================================
-         * INICIA
+         * INICIALIZAÇÃO
          * =========================================================
          */
 
